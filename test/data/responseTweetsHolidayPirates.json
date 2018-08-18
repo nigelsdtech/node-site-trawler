@@ -1,0 +1,434 @@
+[
+   {
+      "favorite_count" : 1,
+      "text" : "Tickets half price for San Francisco… https://t.co/ruvSP0nx0I",
+      "geo" : null,
+      "id" : 1001102141761650689,
+      "created_at" : "Mon May 28 14:05:24 +0000 2018",
+      "id_str" : "1001102141761650689",
+      "is_quote_status" : false,
+      "in_reply_to_screen_name" : null,
+      "in_reply_to_status_id_str" : null,
+      "retweet_count" : 3,
+      "favorited" : false,
+      "truncated" : true,
+      "entities" : {
+         "user_mentions" : [],
+         "hashtags" : [],
+         "urls" : [
+            {
+               "display_url" : "twitter.com/i/web/status/1…",
+               "url" : "https://t.co/ruvSP0nx0I",
+               "indices" : [
+                  99,
+                  122
+               ],
+               "expanded_url" : "https://twitter.com/i/web/status/1001102141761650689"
+            }
+         ],
+         "symbols" : []
+      },
+      "source" : "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>",
+      "in_reply_to_user_id" : null,
+      "coordinates" : null,
+      "lang" : "en",
+      "in_reply_to_user_id_str" : null,
+      "retweeted" : false,
+      "user" : {
+         "id" : 2758345674,
+         "id_str" : "2758345674"
+      },
+      "contributors" : null,
+      "in_reply_to_status_id" : null,
+      "place" : null,
+      "possibly_sensitive" : false
+   },
+   {
+      "id_str" : "1001099733413318656",
+      "is_quote_status" : false,
+      "in_reply_to_status_id_str" : null,
+      "in_reply_to_screen_name" : null,
+      "geo" : null,
+      "created_at" : "Mon May 28 13:55:50 +0000 2018",
+      "id" : 1001099733413318656,
+      "favorite_count" : 0,
+      "text" : "Tickets quarter price for Zanzibar … https://t.co/ruvSP0nx0I",
+      "retweeted" : false,
+      "lang" : "en",
+      "in_reply_to_user_id_str" : null,
+      "extended_entities" : {
+         "media" : [
+            {
+               "id" : 1001099075796680705,
+               "type" : "photo",
+               "indices" : [
+                  114,
+                  137
+               ],
+               "url" : "https://t.co/dFzyBVGcNA",
+               "sizes" : {
+                  "large" : {
+                     "resize" : "fit",
+                     "h" : 1225,
+                     "w" : 1633
+                  },
+                  "medium" : {
+                     "w" : 1200,
+                     "h" : 900,
+                     "resize" : "fit"
+                  },
+                  "thumb" : {
+                     "resize" : "crop",
+                     "w" : 150,
+                     "h" : 150
+                  },
+                  "small" : {
+                     "h" : 510,
+                     "w" : 680,
+                     "resize" : "fit"
+                  }
+               },
+               "expanded_url" : "https://twitter.com/SecretFlying/status/1001099733413318656/photo/1",
+               "media_url_https" : "https://pbs.twimg.com/media/DeSeTi3VQAEzurC.jpg",
+               "display_url" : "pic.twitter.com/dFzyBVGcNA",
+               "id_str" : "1001099075796680705",
+               "media_url" : "http://pbs.twimg.com/media/DeSeTi3VQAEzurC.jpg"
+            }
+         ]
+      },
+      "user" : {
+         "id" : 2758345674,
+         "id_str" : "2758345674"
+      },
+      "in_reply_to_status_id" : null,
+      "contributors" : null,
+      "possibly_sensitive" : false,
+      "place" : null,
+      "favorited" : false,
+      "retweet_count" : 2,
+      "truncated" : false,
+      "entities" : {
+         "symbols" : [],
+         "media" : [
+            {
+               "media_url_https" : "https://pbs.twimg.com/media/DeSeTi3VQAEzurC.jpg",
+               "expanded_url" : "https://twitter.com/SecretFlying/status/1001099733413318656/photo/1",
+               "sizes" : {
+                  "medium" : {
+                     "resize" : "fit",
+                     "h" : 900,
+                     "w" : 1200
+                  },
+                  "small" : {
+                     "resize" : "fit",
+                     "w" : 680,
+                     "h" : 510
+                  },
+                  "thumb" : {
+                     "resize" : "crop",
+                     "w" : 150,
+                     "h" : 150
+                  },
+                  "large" : {
+                     "w" : 1633,
+                     "h" : 1225,
+                     "resize" : "fit"
+                  }
+               },
+               "media_url" : "http://pbs.twimg.com/media/DeSeTi3VQAEzurC.jpg",
+               "id_str" : "1001099075796680705",
+               "display_url" : "pic.twitter.com/dFzyBVGcNA",
+               "id" : 1001099075796680705,
+               "indices" : [
+                  114,
+                  137
+               ],
+               "url" : "https://t.co/dFzyBVGcNA",
+               "type" : "photo"
+            }
+         ],
+         "urls" : [
+            {
+               "url" : "https://t.co/KBBrJd8wxf",
+               "indices" : [
+                  90,
+                  113
+               ],
+               "display_url" : "secretflying.com/posts/italian-…",
+               "expanded_url" : "https://www.secretflying.com/posts/italian-cities-zanzibar-tanzania-e377-roundtrip/"
+            }
+         ],
+         "hashtags" : [],
+         "user_mentions" : [
+            {
+               "id_str" : "18909186",
+               "name" : "Turkish Airlines",
+               "indices" : [
+                  71,
+                  87
+               ],
+               "screen_name" : "TurkishAirlines",
+               "id" : 18909186
+            }
+         ]
+      },
+      "source" : "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>",
+      "coordinates" : null,
+      "in_reply_to_user_id" : null
+   },
+   {
+      "in_reply_to_user_id" : null,
+      "coordinates" : null,
+      "source" : "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>",
+      "entities" : {
+         "user_mentions" : [],
+         "hashtags" : [],
+         "urls" : [
+            {
+               "expanded_url" : "https://www.secretflying.com/posts/crazy-hot-paphos-cyprus-amman-jordan-e4-roundtrip-vice-versa-4-usd/",
+               "url" : "https://t.co/O65jdKyhB5",
+               "indices" : [
+                  72,
+                  95
+               ],
+               "display_url" : "secretflying.com/posts/crazy-ho…"
+            }
+         ],
+         "media" : [
+            {
+               "id" : 1001092459437350912,
+               "indices" : [
+                  96,
+                  119
+               ],
+               "url" : "https://t.co/pstM5QcVpw",
+               "type" : "photo",
+               "media_url_https" : "https://pbs.twimg.com/media/DeSYSbAV4AAXZaQ.jpg",
+               "expanded_url" : "https://twitter.com/SecretFlying/status/1001094077708947456/photo/1",
+               "sizes" : {
+                  "medium" : {
+                     "w" : 1200,
+                     "h" : 799,
+                     "resize" : "fit"
+                  },
+                  "thumb" : {
+                     "w" : 150,
+                     "h" : 150,
+                     "resize" : "crop"
+                  },
+                  "small" : {
+                     "resize" : "fit",
+                     "h" : 453,
+                     "w" : 680
+                  },
+                  "large" : {
+                     "w" : 1734,
+                     "h" : 1154,
+                     "resize" : "fit"
+                  }
+               },
+               "media_url" : "http://pbs.twimg.com/media/DeSYSbAV4AAXZaQ.jpg",
+               "id_str" : "1001092459437350912",
+               "display_url" : "pic.twitter.com/pstM5QcVpw"
+            }
+         ],
+         "symbols" : []
+      },
+      "truncated" : false,
+      "retweet_count" : 3,
+      "favorited" : false,
+      "place" : null,
+      "possibly_sensitive" : false,
+      "contributors" : null,
+      "in_reply_to_status_id" : null,
+      "user" : {
+         "id" : 2758345674,
+         "id_str" : "2758345674"
+      },
+      "extended_entities" : {
+         "media" : [
+            {
+               "id" : 1001092459437350912,
+               "type" : "photo",
+               "indices" : [
+                  96,
+                  119
+               ],
+               "url" : "https://t.co/pstM5QcVpw",
+               "sizes" : {
+                  "small" : {
+                     "resize" : "fit",
+                     "w" : 680,
+                     "h" : 453
+                  },
+                  "thumb" : {
+                     "resize" : "crop",
+                     "h" : 150,
+                     "w" : 150
+                  },
+                  "medium" : {
+                     "resize" : "fit",
+                     "w" : 1200,
+                     "h" : 799
+                  },
+                  "large" : {
+                     "h" : 1154,
+                     "w" : 1734,
+                     "resize" : "fit"
+                  }
+               },
+               "expanded_url" : "https://twitter.com/SecretFlying/status/1001094077708947456/photo/1",
+               "media_url_https" : "https://pbs.twimg.com/media/DeSYSbAV4AAXZaQ.jpg",
+               "display_url" : "pic.twitter.com/pstM5QcVpw",
+               "id_str" : "1001092459437350912",
+               "media_url" : "http://pbs.twimg.com/media/DeSYSbAV4AAXZaQ.jpg"
+            }
+         ]
+      },
+      "retweeted" : false,
+      "lang" : "en",
+      "in_reply_to_user_id_str" : null,
+      "text" : "CRAZY HOT!! Paphos, Cyprus to Amman, Jordan for only 99 cents one-way.\n\nhttps://t.co/O65jdKyhB5 https://t.co/pstM5QcVpw",
+      "favorite_count" : 7,
+      "geo" : null,
+      "id" : 1001094077708947456,
+      "created_at" : "Mon May 28 13:33:22 +0000 2018",
+      "in_reply_to_screen_name" : null,
+      "in_reply_to_status_id_str" : null,
+      "is_quote_status" : false,
+      "id_str" : "1001094077708947456"
+   },
+   {
+      "is_quote_status" : false,
+      "in_reply_to_status_id_str" : null,
+      "in_reply_to_screen_name" : null,
+      "id_str" : "1001090388910886917",
+      "geo" : null,
+      "created_at" : "Mon May 28 13:18:42 +0000 2018",
+      "id" : 1001090388910886917,
+      "favorite_count" : 5,
+      "text" : "Tickets to the Seychelles from only €358 roundtrip with @TurkishAirlines.\n\nhttps://t.co/GZRAcQEs8g https://t.co/LXv8V5rN9l",
+      "in_reply_to_status_id" : null,
+      "contributors" : null,
+      "possibly_sensitive" : false,
+      "place" : null,
+      "lang" : "en",
+      "retweeted" : false,
+      "in_reply_to_user_id_str" : null,
+      "extended_entities" : {
+         "media" : [
+            {
+               "id" : 1001089575618428928,
+               "indices" : [
+                  111,
+                  134
+               ],
+               "url" : "https://t.co/LXv8V5rN9l",
+               "type" : "photo",
+               "media_url_https" : "https://pbs.twimg.com/media/DeSVqj8VQAAzu1P.jpg",
+               "sizes" : {
+                  "large" : {
+                     "resize" : "fit",
+                     "w" : 1823,
+                     "h" : 1096
+                  },
+                  "small" : {
+                     "resize" : "fit",
+                     "h" : 409,
+                     "w" : 680
+                  },
+                  "thumb" : {
+                     "resize" : "crop",
+                     "h" : 150,
+                     "w" : 150
+                  },
+                  "medium" : {
+                     "w" : 1200,
+                     "h" : 721,
+                     "resize" : "fit"
+                  }
+               },
+               "expanded_url" : "https://twitter.com/SecretFlying/status/1001090388910886917/photo/1",
+               "media_url" : "http://pbs.twimg.com/media/DeSVqj8VQAAzu1P.jpg",
+               "id_str" : "1001089575618428928",
+               "display_url" : "pic.twitter.com/LXv8V5rN9l"
+            }
+         ]
+      },
+      "user" : {
+         "id" : 2758345674,
+         "id_str" : "2758345674"
+      },
+      "source" : "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>",
+      "coordinates" : null,
+      "in_reply_to_user_id" : null,
+      "favorited" : false,
+      "retweet_count" : 1,
+      "entities" : {
+         "user_mentions" : [
+            {
+               "indices" : [
+                  68,
+                  84
+               ],
+               "name" : "Turkish Airlines",
+               "id_str" : "18909186",
+               "id" : 18909186,
+               "screen_name" : "TurkishAirlines"
+            }
+         ],
+         "urls" : [
+            {
+               "url" : "https://t.co/GZRAcQEs8g",
+               "indices" : [
+                  87,
+                  110
+               ],
+               "display_url" : "secretflying.com/posts/italian-…",
+               "expanded_url" : "https://www.secretflying.com/posts/italian-cities-seychelles-e442-roundtrip/"
+            }
+         ],
+         "hashtags" : [],
+         "symbols" : [],
+         "media" : [
+            {
+               "type" : "photo",
+               "url" : "https://t.co/LXv8V5rN9l",
+               "indices" : [
+                  111,
+                  134
+               ],
+               "id" : 1001089575618428928,
+               "id_str" : "1001089575618428928",
+               "display_url" : "pic.twitter.com/LXv8V5rN9l",
+               "media_url" : "http://pbs.twimg.com/media/DeSVqj8VQAAzu1P.jpg",
+               "expanded_url" : "https://twitter.com/SecretFlying/status/1001090388910886917/photo/1",
+               "sizes" : {
+                  "medium" : {
+                     "h" : 721,
+                     "w" : 1200,
+                     "resize" : "fit"
+                  },
+                  "thumb" : {
+                     "w" : 150,
+                     "h" : 150,
+                     "resize" : "crop"
+                  },
+                  "small" : {
+                     "resize" : "fit",
+                     "h" : 409,
+                     "w" : 680
+                  },
+                  "large" : {
+                     "resize" : "fit",
+                     "w" : 1823,
+                     "h" : 1096
+                  }
+               },
+               "media_url_https" : "https://pbs.twimg.com/media/DeSVqj8VQAAzu1P.jpg"
+            }
+         ]
+      },
+      "truncated" : false
+   }
+]
