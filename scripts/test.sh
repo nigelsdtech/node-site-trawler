@@ -5,4 +5,4 @@
 export NODE_ENV="test"
 
 mocha -b --check-leaks --recursive test/unit
-#mocha -b --check-leaks --recursive test/functional
+mocha -b --check-leaks --recursive test/functional

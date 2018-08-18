@@ -31,7 +31,7 @@ var basicTweetSearch = {
  * The actual tests
  */
 
-describe.only('TwitterTrawler.loadResults', function () {
+describe('TwitterTrawler.loadResults', function () {
 
   this.timeout(timeout)
 
@@ -62,7 +62,7 @@ describe.only('TwitterTrawler.loadResults', function () {
     nockRet.reply(200,td)
     twitterTrawler = new TwitterTrawler(b)
 
-    twittertrawler.loadresults(null, function (e,tweets) {
+    twitterTrawler.loadResults(null, function (e,tweets) {
 
       var ret = []
       tweets.forEach(function(t) { ret.push(t.id) })
@@ -76,7 +76,7 @@ describe.only('TwitterTrawler.loadResults', function () {
     })
   });
 
-  it.only('filters out incoming tweets that are lower id\'s than ones we\'ve seen on previous runs', function (done) {
+  it('filters out incoming tweets that are lower id\'s than ones we\'ve seen on previous runs', function (done) {
 
     var highestSeenId = 1001094077708947456
 

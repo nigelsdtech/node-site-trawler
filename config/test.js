@@ -74,7 +74,7 @@ module.exports = {
     appSpecificPassword : process.env.PERSONAL_APP_SPECIFIC_PASSWORD,
     emailsFrom          : process.env.PERSONAL_EMAIL_ADDRESS,
     name                : 'Reporter (Personal)',
-    notificationTo      : defer( function (cfg) { return cfg.testEmailSender.recipient } ),
+    notificationTo      : defer( function (cfg) { return cfg.testEmailRecipient.emailAddress } ),
     user                : process.env.PERSONAL_GMAIL_USERNAME
   }
 }
