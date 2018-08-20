@@ -149,7 +149,7 @@ describe('TwitterTrawler.loadResults', function () {
     twitterTrawler = new TwitterTrawler(b)
 
     twitterTrawler.loadResults(null, function (e,tweets) {
-      e.should.equal('Unexpected response from Twitter: (503) "Simulated 503 error"')
+      e.should.equal('Unexpected response: (503) "Simulated 503 error"')
       done();
     })
   });
@@ -162,7 +162,7 @@ describe('TwitterTrawler.loadResults', function () {
     twitterTrawler = new TwitterTrawler(b)
 
     twitterTrawler.loadResults(null, function (e,tweets) {
-      e.should.equal('Bad response from Twitter: Error: ESOCKETTIMEDOUT')
+      e.should.equal('Bad response: Error: ESOCKETTIMEDOUT')
       done();
     })
   });
@@ -179,7 +179,7 @@ describe('TwitterTrawler.loadResults', function () {
     twitterTrawler = new TwitterTrawler(b)
 
     twitterTrawler.loadResults(null, function (e,tweets) {
-      e.should.equal('Unexpected response from Twitter: (404) ' + JSON.stringify(twitterRespBody))
+      e.should.equal('Unexpected response: (404) ' + JSON.stringify(twitterRespBody))
       done();
     })
   });
