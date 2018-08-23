@@ -17,10 +17,13 @@ var
  */
 chai.should();
 
-var timeout = (1000*45)
+var timeout = (1000*20)
 
 var twitterHost = 'https://api.twitter.com/1.1'
 var twitterUri  = '/statuses/user_timeline.json'
+
+var gumtreeHost = "https://www.gumtree.com"
+var gumtreeUri  = "/search"
 
 /*
  * Logs
@@ -38,6 +41,7 @@ cfg.reporter.notificationTo = recipientAddress
 
 var tweetDataSF = jsonFile.readFileSync('./test/data/responseTweetsSecretFlying.json')
 var tweetDataHP = jsonFile.readFileSync('./test/data/responseTweetsHolidayPirates.json')
+var dataGumtree = fs.readFileSync('./test/data/gumtree/results_1.html')
 
 
 /**
@@ -76,67 +80,96 @@ function getNewEN (params) {
  *
  * @desc Cleans up all sent and received emails and the label for the operation
  *
- * @param {object=}  params - Parameters for request (currently no params supported)
- * @param {callback} cb     - The callback that handles the response. cb(err)
+ * @param {object=}   params      - Parameters for request (optional)
+ * @param {string[]=} cleanupJobs - If params.cleanupJobs was passed in then we only use the specific jobs that were set. See opts for list of possible values
+ * @param {callback}  cb          - The callback that handles the response. cb(err)
  *
  */
 function cleanup(params, cb) {
 
   var fn = 'cleanup'
 
+  var opts = {
+    recipientInbox: true,
+    senderInbox: true,
+    savedDataFile: true
+  }
+
+  // If params.cleanupJobs was passed in then we only use the specific jobs that were set
+  if (params && params.cleanupJobs) {
+
+    var cj = params.cleanupJobs
+    var jobs = ["recipientInbox", "senderInbox", "savedDataFile"]
+
+    jobs.forEach(function (j) {
+      opts[j] = (cj.indexOf(j) > -1 )? true : false;
+    })
+  }
+
+
   var gsc = "to:" + recipientAddress
 
+  var jobs = []
 
-  // Cleanup the report email received by the recipient
-  var deferredEr  = Q.defer()
-  var enRecipient = getNewEN ({who: 'r', gsc: 'is:inbox ' + gsc})
+  if (opts.recipientInbox) {
+    // Cleanup the report email received by the recipient
+    var deferredEr  = Q.defer()
+    var enRecipient = getNewEN ({who: 'r', gsc: 'is:inbox ' + gsc})
 
-  log.info('%s: recipient: cleaning up...', fn)
-  enRecipient.hasBeenReceived(null,function (err, hbr) {
-    if (hbr) {
-      enRecipient.trash(null,function (err) {
-        if (err) { deferredEr.reject(err); return null }
-        log.info('%s: recipient: cleaned.', fn)
-        deferredEr.resolve()
-      })
-    } else {
-        log.info('%s: recipient: nothing to clean.', fn)
-        deferredEr.resolve()
-    }
-  })
+    jobs.push(deferredEr.promise)
 
+    log.info('%s: recipient: cleaning up...', fn)
+    enRecipient.hasBeenReceived(null,function (err, hbr) {
+      if (hbr) {
+        enRecipient.trash(null,function (err) {
+          if (err) { deferredEr.reject(err); return null }
+          log.info('%s: recipient: cleaned.', fn)
+          deferredEr.resolve()
+        })
+      } else {
+          log.info('%s: recipient: nothing to clean.', fn)
+          deferredEr.resolve()
+      }
+    })
+  }
 
-  // Cleanup the report email sent by the sender
-  var deferredEs = Q.defer()
-  var enSender   = getNewEN ({who: 's', gsc: 'in:sent '  + gsc})
+  if (opts.senderInbox) {
+    // Cleanup the report email sent by the sender
+    var deferredEs = Q.defer()
+    var enSender   = getNewEN ({who: 's', gsc: 'in:sent '  + gsc})
 
-  log.info('%s: sender: cleaning up...', fn)
-  enSender.hasBeenReceived(null,function (err, hbr) {
-    if (hbr) {
-      enSender.trash(null,function (err) {
-        if (err) { deferredEs.reject(err); return null }
-        log.info('%s: sender: cleaned.', fn)
-        deferredEs.resolve()
-      })
-    } else {
-        log.info('%s: sender: nothing to clean.', fn)
-        deferredEs.resolve()
-    }
-  })
+    jobs.push(deferredEs.promise)
 
-  // Delete the savedData file
-  var deferredSD = Q.defer()
-  log.info('%s: savedDataFile deleting...', fn)
-  fs.unlink(cfg.savedDataFile, function (err) {
-    if (err) { deferredSD.reject(err); return null }
-    log.info('%s: savedDataFile deleted.', fn)
-    deferredSD.resolve()
-  })
+    log.info('%s: sender: cleaning up...', fn)
+    enSender.hasBeenReceived(null,function (err, hbr) {
+      if (hbr) {
+        enSender.trash(null,function (err) {
+          if (err) { deferredEs.reject(err); return null }
+          log.info('%s: sender: cleaned.', fn)
+          deferredEs.resolve()
+        })
+      } else {
+          log.info('%s: sender: nothing to clean.', fn)
+          deferredEs.resolve()
+      }
+    })
+  }
+
+  if (opts.savedDataFile) {
+    // Delete the savedData file
+    var deferredSD = Q.defer()
+    jobs.push(deferredSD.promise)
+
+    log.info('%s: savedDataFile deleting...', fn)
+    fs.unlink(cfg.savedDataFile, function (err) {
+      if (err) { deferredSD.reject(err); return null }
+      log.info('%s: savedDataFile deleted.', fn)
+      deferredSD.resolve()
+    })
+  }
 
   // Return the callback when all promises have resolved
-  Q.allSettled([ deferredEr.promise, deferredEs.promise, deferredEs.promise ])
-  .catch(function (e) {console.error(e)})
-  .fin(function () {cb(null)})
+  Q.allSettled(jobs).catch(log.error).fin(cb)
 }
 
 
@@ -145,8 +178,9 @@ function cleanup(params, cb) {
  *
  * @desc Triggers the script and adds a delay before completing to allow notification emails to go out
  *
- * @param {object=}  params                  - Parameters for request (currently unused)
- * @param {callback} cb                      - The callback that handles the response. cb(err)
+ * @param {object=}   params             - Parameters for request (optional)
+ * @param {string[]=} params.cleanupJobs - If params.cleanupJobs was passed in then we only run the specific jobs that were set. See opts for list of possible values (optional)
+ * @param {callback}  cb                 - The callback that handles the response. cb(err)
  *
  */
 function startScript(params, cb) {
@@ -154,7 +188,10 @@ function startScript(params, cb) {
   var fn = 'startScript'
   log.info('%s: pre-emptive cleanup', fn)
 
-  Q.nfcall(cleanup,null)
+  var cleanupArgs = {}
+  if (params && params.cleanupJobs) { cleanupArgs.cleanupJobs = params.cleanupJobs }
+
+  Q.nfcall(cleanup,cleanupArgs)
   .then( function () {
 
     log.info('%s: start the script', fn)
@@ -187,27 +224,42 @@ describe('When trawlers returns results', function () {
 
   this.timeout(timeout)
 
-  var nockSF, nockHP, tdSF, tdHP
+  var nockSF, nockHP, nockGT,
+    nockSF2, nockHP2,
+    qsSF, qsHP, qsGT,
+    tdSF, tdHP, tdGT
+
+  var er = getNewEN({who: 'r', gsc: 'is:inbox to:' + recipientAddress + ' (half price)'})
 
   before(function (done) {
 
     tdSF = tweetDataSF.slice()
     tdHP = tweetDataHP.slice()
+    tdGT = dataGumtree
 
-    var qsSF = { screen_name: "SecretFlying",   count: 5, trim_user: "true", exclude_replies: "true" }
-    var qsHP = { screen_name: "HolidayPirates", count: 5, trim_user: "true", exclude_replies: "true" }
+    qsSF = { screen_name: "SecretFlying",   count: 5, trim_user: "true", exclude_replies: "true" }
+    qsHP = { screen_name: "HolidayPirates", count: 5, trim_user: "true", exclude_replies: "true" }
+    qsGT = { sort: "date", q: "microwave" }
+
     nockSF = nock(twitterHost).persist().get(twitterUri).query(qsSF).reply(200,tdSF)
     nockHP = nock(twitterHost).persist().get(twitterUri).query(qsHP).reply(200,tdHP)
+    nockGT = nock(gumtreeHost)          .get(gumtreeUri).query(qsGT).reply(200,tdGT)
+
+    qsSF.since_id = 1001102141761650689
+    qsHP.since_id = 1001102141761650700
+
+    nockSF2 = nock(twitterHost).persist().get(twitterUri).query(qsSF).reply(200,tdSF)
+    nockHP2 = nock(twitterHost).persist().get(twitterUri).query(qsHP).reply(200,tdHP)
 
     startScript(null, done)
   })
 
 
 
-  it ('Sends a successful report', function(done) {
+  it('Sends a successful report', function(done) {
 
     // Get the report email
-    var er = getNewEN({who: 'r', gsc: 'is:inbox to:' + recipientAddress + ' (half price)'})
+    er.flushCache()
     er.hasBeenReceived(null, function (err,hbr) {
       chai.expect(err).to.not.exist
       hbr.should.equal(true)
@@ -216,8 +268,43 @@ describe('When trawlers returns results', function () {
 
   })
 
+  it('Doesn\'t send a report if a subsequent call yields no results', function (done) {
 
-   after( function (done) {
+    nockGT = nock(gumtreeHost).get(gumtreeUri).query(qsGT).reply(200,tdGT)
+
+    startScript({cleanupJobs: ["recipientInbox"]}, function () {
+
+      nockHP2.isDone().should.equal(true)
+      nockSF2.isDone().should.equal(true)
+
+      er.flushCache()
+      er.hasBeenReceived(null, function (err,hbr) {
+        chai.expect(err).to.not.exist
+        hbr.should.equal(false)
+        done()
+      })
+    })
+  })
+
+  it('Sends a report only containing additional results if a subsequent call yields a new one', function (done) {
+
+    var tdGT2 = fs.readFileSync('./test/data/gumtree/results_1.1.html')
+    var nockGT2 = nock(gumtreeHost).log(console.log).get(gumtreeUri).query(qsGT).reply(200,tdGT2)
+
+    startScript({cleanupJobs: ["recipientInbox"]}, function () {
+
+      var er2 = getNewEN({who: 'r', gsc: 'is:inbox to:' + recipientAddress + ' (bogus new york) -(Morphy Richards)'})
+
+      // Look for another report come in
+      er2.hasBeenReceived(null, function (err,hbr) {
+        chai.expect(err).to.not.exist
+        hbr.should.equal(true)
+        done()
+      })
+    })
+  })
+
+  after( function (done) {
     nock.cleanAll()
     nockSF = null
     nockHP = null
@@ -230,24 +317,30 @@ describe('When only one trawler returns results', function () {
 
   this.timeout(timeout)
 
-  var nockSF, nockHP, tdSF, tdHP, qsSF, qsHP
+  var nockSF, nockHP, nockGT,
+    qsSF, qsHP, qsGT,
+    tdSF, tdHP, tdGT
 
   before(function (done) {
 
     tdSF = []
+    tdGT = []
     tdHP = tweetDataHP.slice()
 
     qsSF = { screen_name: "SecretFlying",   count: 5, trim_user: "true", exclude_replies: "true" }
     qsHP = { screen_name: "HolidayPirates", count: 5, trim_user: "true", exclude_replies: "true" }
+    qsGT = { sort: "date", q: "microwave" }
+
     nockSF = nock(twitterHost).persist().get(twitterUri).query(qsSF).reply(200,tdSF)
     nockHP = nock(twitterHost).persist().get(twitterUri).query(qsHP).reply(200,tdHP)
+    nockGT = nock(gumtreeHost).persist().get(gumtreeUri).query(qsGT).reply(200,tdGT)
 
     startScript(null, done)
   })
 
 
 
-  it ('Sends a successful report with the results received by the remaining trawlers', function(done) {
+  it ('Sends a successful report with the results received by that trawler', function(done) {
 
     // Get the report email
     var er = getNewEN({who: 'r', gsc: 'is:inbox to:' + recipientAddress + ' (@HolidayPirates-Twitter)'})
@@ -287,24 +380,31 @@ describe('When no trawlers returns results', function () {
 
   this.timeout(timeout)
 
-  var nockSF, nockHP, tdSF, tdHP
+  var nockSF, nockHP, nockGT,
+    qsSF, qsHP, qsGT,
+    tdSF, tdHP, tdGT
+
 
   before(function (done) {
 
     tdSF = []
     tdHP = []
+    tdGT = []
 
-    var qsSF = { screen_name: "SecretFlying",   count: 5, trim_user: "true", exclude_replies: "true" }
-    var qsHP = { screen_name: "HolidayPirates", count: 5, trim_user: "true", exclude_replies: "true" }
+    qsSF = { screen_name: "SecretFlying",   count: 5, trim_user: "true", exclude_replies: "true" }
+    qsHP = { screen_name: "HolidayPirates", count: 5, trim_user: "true", exclude_replies: "true" }
+    qsGT = { sort: "date", q: "microwave" }
+
     nockSF = nock(twitterHost).persist().get(twitterUri).query(qsSF).reply(200,tdSF)
     nockHP = nock(twitterHost).persist().get(twitterUri).query(qsHP).reply(200,tdHP)
+    nockGT = nock(gumtreeHost).persist().get(gumtreeUri).query(qsGT).reply(200,tdGT)
 
     startScript(null, done)
   })
 
 
 
-  it ('Does not send any kind of report', function(done) {
+  it('Does not send any kind of report', function(done) {
     // Get the report email
     var er = getNewEN({who: 'r', gsc: 'is:inbox to:' + recipientAddress})
     er.hasBeenReceived(null, function (err,hbr) {
@@ -314,7 +414,7 @@ describe('When no trawlers returns results', function () {
     })
   })
 
-   after( function (done) {
+  after(function (done) {
     nock.cleanAll()
     nockSF = null
     nockHP = null

@@ -4,7 +4,7 @@ var defer = require('config/defer').deferConfig;
 module.exports = {
 
   auth: {
-    tokenFile: defer( function (cfg) { return 'access_token_'+cfg.appName+ '-test-recipient.json' } ),
+    tokenFile: defer( function (cfg) { return 'access_token_'+cfg.appName+ '-test-whoami.json' } ),
   },
 
   log : {
@@ -41,6 +41,12 @@ module.exports = {
         pattern : "quarter price", flags: "gi" },{
         pattern : "half price",    flags: "gi" }
       ]
+    }}, {
+
+    trawlModel: "gumtree",
+    setup: {
+      id: "microwave-Gumtree",
+      gtQuery: "sort=date&q=microwave"
     }}
   ],
 
@@ -52,7 +58,7 @@ module.exports = {
       googleScopes        : defer ( function (cfg) { return cfg.auth.googleScopes } ),
       name                : 'Report sender',
       tokenDir            : defer ( function (cfg) { return cfg.auth.tokenFileDir } ),
-      tokenFile           : defer ( function (cfg) { return cfg.auth.tokenFile.replace('-recipient','-sender')} ),
+      tokenFile           : defer ( function (cfg) { return cfg.auth.tokenFile.replace('-whoami','-sender')} ),
       user                : process.env.PERSONAL_GMAIL_USERNAME
     }
   },
@@ -65,7 +71,8 @@ module.exports = {
       googleScopes     : defer ( function (cfg) { return cfg.auth.googleScopes } ),
       name             : 'Recipient inbox',
       tokenDir         : defer ( function (cfg) { return cfg.auth.tokenFileDir } ),
-      tokenFile        : defer ( function (cfg) { return cfg.auth.tokenFile } )
+      tokenFile        : defer ( function (cfg) { return cfg.auth.tokenFile } ),
+      tokenFile        : defer ( function (cfg) { return cfg.auth.tokenFile.replace('-whoami','-recipient')} )
     }
   },
 
