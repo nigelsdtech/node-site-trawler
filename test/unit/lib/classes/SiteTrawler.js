@@ -12,8 +12,10 @@ chai.should();
 var timeout = 5*1000;
 
 var basicSiteTrawler = {
-  id         : "Twitter, John Petrucci, Masterclass",
-  maxResults : 10
+  subClassSetup: {
+    id         : "Twitter, John Petrucci, Masterclass",
+    maxResults : 10
+  }
 }
 
 
