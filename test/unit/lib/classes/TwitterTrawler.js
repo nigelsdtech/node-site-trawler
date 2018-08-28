@@ -31,7 +31,7 @@ var basicTweetSearch = {
  * The actual tests
  */
 
-describe('TwitterTrawler.loadResults', function () {
+describe('TwitterTrawler.getResults', function () {
 
   this.timeout(timeout)
 
@@ -62,7 +62,7 @@ describe('TwitterTrawler.loadResults', function () {
     nockRet.reply(200,td)
     twitterTrawler = new TwitterTrawler(b)
 
-    twitterTrawler.loadResults(null, function (e,tweets) {
+    twitterTrawler.getResults(null, function (e,tweets) {
 
       var ret = []
       tweets.forEach(function(t) { ret.push(t.id) })
@@ -97,7 +97,7 @@ describe('TwitterTrawler.loadResults', function () {
     twitterTrawler.setSavedData({savedData: {highestSeenId: highestSeenId} })
 
 
-    twitterTrawler.loadResults(null, function (e,tweets) {
+    twitterTrawler.getResults(null, function (e,tweets) {
 
       var ret = []
       tweets.forEach(function(t) { ret.push(t.id) })
@@ -126,7 +126,7 @@ describe('TwitterTrawler.loadResults', function () {
     delete b['maxResults']
     twitterTrawler = new TwitterTrawler(b)
 
-    twitterTrawler.loadResults(null, function (e,tweets) {
+    twitterTrawler.getResults(null, function (e,tweets) {
       nockRet.isDone().should.be.true
       done();
     })
@@ -137,7 +137,7 @@ describe('TwitterTrawler.loadResults', function () {
     nockRet.reply(200,[])
     twitterTrawler = new TwitterTrawler(b)
 
-    twitterTrawler.loadResults(null, function (e,tweets) {
+    twitterTrawler.getResults(null, function (e,tweets) {
       tweets.should.deep.equal([])
       done();
     })
@@ -148,8 +148,8 @@ describe('TwitterTrawler.loadResults', function () {
     nockRet.reply(503,'Simulated 503 error')
     twitterTrawler = new TwitterTrawler(b)
 
-    twitterTrawler.loadResults(null, function (e,tweets) {
-      e.should.equal('Unexpected response: (503) "Simulated 503 error"')
+    twitterTrawler.getResults(null, function (e,tweets) {
+      e.should.equal('Failed to load results: (503) "Simulated 503 error"')
       done();
     })
   });
@@ -161,8 +161,8 @@ describe('TwitterTrawler.loadResults', function () {
 
     twitterTrawler = new TwitterTrawler(b)
 
-    twitterTrawler.loadResults(null, function (e,tweets) {
-      e.should.equal('Bad response: Error: ESOCKETTIMEDOUT')
+    twitterTrawler.getResults(null, function (e,tweets) {
+      e.should.equal('Failed to load results: Error: ESOCKETTIMEDOUT')
       done();
     })
   });
@@ -178,8 +178,8 @@ describe('TwitterTrawler.loadResults', function () {
     nockRet.reply(404,twitterRespBody)
     twitterTrawler = new TwitterTrawler(b)
 
-    twitterTrawler.loadResults(null, function (e,tweets) {
-      e.should.equal('Unexpected response: (404) ' + JSON.stringify(twitterRespBody))
+    twitterTrawler.getResults(null, function (e,tweets) {
+      e.should.equal('Failed to load results: (404) ' + JSON.stringify(twitterRespBody))
       done();
     })
   });

@@ -30,7 +30,7 @@ var basicSearch = {
  * The actual tests
  */
 
-describe('GumtreeTrawler.loadResults', function () {
+describe('GumtreeTrawler.getResults', function () {
 
   this.timeout(timeout)
 
@@ -56,7 +56,7 @@ describe('GumtreeTrawler.loadResults', function () {
 
     nockRet.reply(200,listingData)
 
-    gumtreeTrawler.loadResults(null, function (e,listings) {
+    gumtreeTrawler.getResults(null, function (e,listings) {
 
       var ret = []
       listings.forEach(function(t) { ret.push(t.url) })
@@ -84,10 +84,10 @@ describe('GumtreeTrawler.loadResults', function () {
     })
 
 
-    gumtreeTrawler.loadResults(null, function (e,listings) {
+    gumtreeTrawler.getResults(null, function (e,listings) {
 
       var ret = []
-      listings.forEach(function(t) { ret.push(t.url) })
+      listings.forEach(function(t) { ret.push(t.id) })
 
       ret.should.have.members([
         "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
@@ -112,7 +112,7 @@ describe('GumtreeTrawler.loadResults', function () {
     })
 
 
-    gumtreeTrawler.loadResults(null, function (e,listings) {
+    gumtreeTrawler.getResults(null, function (e,listings) {
 
       gumtreeTrawler.getDataToSave().seenIds.should.have.members([
         "Some dud A",
@@ -133,7 +133,7 @@ describe('GumtreeTrawler.loadResults', function () {
     delete b['maxResults']
     gumtreeTrawler = new GumtreeTrawler(b)
 
-    gumtreeTrawler.loadResults(null, function (e,listings) {
+    gumtreeTrawler.getResults(null, function (e,listings) {
 
       var ret = []
       listings.forEach(function(t) { ret.push(t.url) })
@@ -152,7 +152,7 @@ describe('GumtreeTrawler.loadResults', function () {
 
     nockRet.reply(200,[])
 
-    gumtreeTrawler.loadResults(null, function (e,listings) {
+    gumtreeTrawler.getResults(null, function (e,listings) {
       listings.should.deep.equal([])
       done();
     })
@@ -162,8 +162,8 @@ describe('GumtreeTrawler.loadResults', function () {
 
     nockRet.reply(503,'Simulated 503 error')
 
-    gumtreeTrawler.loadResults(null, function (e,listings) {
-      e.should.equal('Unexpected response: (503) "Simulated 503 error"')
+    gumtreeTrawler.getResults(null, function (e,listings) {
+      e.should.equal('Failed to load results: (503) "Simulated 503 error"')
       done();
     })
   });
@@ -175,8 +175,8 @@ describe('GumtreeTrawler.loadResults', function () {
 
     gumtreeTrawler = new GumtreeTrawler(b)
 
-    gumtreeTrawler.loadResults(null, function (e,listings) {
-      e.should.equal('Bad response: Error: ESOCKETTIMEDOUT')
+    gumtreeTrawler.getResults(null, function (e,listings) {
+      e.should.equal('Failed to load results: Error: ESOCKETTIMEDOUT')
       done();
     })
   });

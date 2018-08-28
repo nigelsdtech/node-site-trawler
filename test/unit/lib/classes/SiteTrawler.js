@@ -22,7 +22,7 @@ var basicSiteTrawler = {
 
 describe('SiteTrawler.getResults', function () {
 
-  var s, b, mt
+  var s, b, mt, lr
 
   var multipleTweets = [
     {id: 1, contents: "Masterclass this sunday"},
@@ -33,16 +33,17 @@ describe('SiteTrawler.getResults', function () {
   beforeEach (function () {
     b  = Object.assign({},basicSiteTrawler)
     mt = multipleTweets.slice()
+    lr = function (p, cb) { this.results = mt.slice(); cb(null) }
   })
 
 
   it('returns valid results for all tweets ', function (done) {
 
     s = new SiteTrawler(b)
-    s.loadResults = function (p, cb) { cb(null, mt) }
+    s.loadResults = lr
 
-    s.getResults(null, function (e,stop) {
-      s.results.should.deep.equal([
+    s.getResults(null, function (e,tweets) {
+      tweets.should.deep.equal([
         {id: 1, contents: "Masterclass this sunday"},
         {id: 2, contents: "Masterclass this monday"},
         {id: 3, contents: "New plectrums for sale"}
@@ -55,11 +56,11 @@ describe('SiteTrawler.getResults', function () {
   it('applies a custom filter to some results', function (done) {
 
     s = new SiteTrawler(b)
-    s.loadResults = function (p,cb) { cb(null, mt) }
+    s.loadResults = lr
     s.resultPassesCustomFilters = function (p) { if (p.result.contents.match(/.*Masterclass.*/)) { return true } else { return false } }
 
-    s.getResults(null, function (e,stop) {
-      s.results.should.deep.equal([
+    s.getResults(null, function (e,tweets) {
+      tweets.should.deep.equal([
         {id: 1, contents: "Masterclass this sunday"},
         {id: 2, contents: "Masterclass this monday"},
       ])
@@ -70,22 +71,22 @@ describe('SiteTrawler.getResults', function () {
   it('applies a custom filter to all results', function (done) {
 
     s = new SiteTrawler(b)
-    s.loadResults = function (p,cb) { cb(null, mt) }
-    s.resultPassesCustomFilters = function (p) { if (p.result.contents.match(/.*concert.*/) > 5) { return true } else { return false } }
+    s.loadResults = lr
+    s.resultPassesCustomFilters = function (p) { return (p.result.contents.match(/.*concert.*/) > 5) }
 
-    s.getResults(null, function (e,stop) {
-      s.results.should.deep.equal([])
+    s.getResults(null, function (e,tweets) {
+      tweets.should.deep.equal([])
       done();
     })
   });
 
-  it('returns no results if the service had none none', function (done) {
+  it('returns no results if the service had none', function (done) {
 
     s = new SiteTrawler(b)
-    s.loadResults = function (p,cb) { cb(null, []) }
+    s.loadResults = function (p,cb) { cb(null) }
 
-    s.getResults(null, function (e,stop) {
-      s.results.should.deep.equal([])
+    s.getResults(null, function (e,tweets) {
+      tweets.should.deep.equal([])
       done();
     })
   });
@@ -95,7 +96,7 @@ describe('SiteTrawler.getResults', function () {
     s = new SiteTrawler(b)
     s.loadResults = function (p,cb) { cb('Simulated failure') }
 
-    s.getResults(null, function (e,stop) {
+    s.getResults(null, function (e,tweets) {
       e.should.equal('Failed to load results: Simulated failure')
       done();
     })
@@ -129,17 +130,6 @@ describe('SiteTrawler.loadResults', function () {
        err.should.equal('loadResults needs to be overridden')
        done()
      })
-  })
-
-})
-
-
-
-describe('SiteTrawler.resultPassesCustomFilters', function () {
-
-  it('returns true by default (users are forced to write an override)', function () {
-     var s = new SiteTrawler(basicSiteTrawler)
-     s.resultPassesCustomFilters(null).should.equal(true)
   })
 
 })
