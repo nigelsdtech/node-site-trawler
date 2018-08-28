@@ -25,7 +25,7 @@ module.exports = {
       id: "@SecretFlying-Twitter",
       maxResults: 5,
       twitterId: "SecretFlying",
-      tweetMatches: [{
+      regexMatches: [{
         pattern : "roundtrip", flags: "gi" },{
         pattern : "video",     flags: "gi" }
 
@@ -37,7 +37,7 @@ module.exports = {
       id: "@HolidayPirates-Twitter",
       maxResults: 5,
       twitterId: "HolidayPirates",
-      tweetMatches: [{
+      regexMatches: [{
         pattern : "quarter price", flags: "gi" },{
         pattern : "half price",    flags: "gi" }
       ]

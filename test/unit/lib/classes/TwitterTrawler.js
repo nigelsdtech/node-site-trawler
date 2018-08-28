@@ -21,7 +21,7 @@ var basicTweetSearch = {
   id           : "@SecretFlying-Twitter",
   maxResults   : 5,
   twitterId    : "SecretFlying",
-  tweetMatches : [{
+  regexMatches : [{
     pattern: "roundtrip", flags: "i"}, {
     pattern: "video",     flags: "i"}]
 }

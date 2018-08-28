@@ -19,7 +19,9 @@ var gumtreeHost = "https://www.gumtree.com"
 var basicSearch = {
   id           : "turntable-Gumtree",
   maxResults   : 10,
-  gtQuery      : "sort=date&q=microwave"
+  gtQuery      : "sort=date&q=microwave",
+  regexMatches : [{
+    pattern: "^((?!(Sharp)).)*$", flags: "gi"}]
 }
 
 
@@ -64,7 +66,6 @@ describe('GumtreeTrawler.loadResults', function () {
         "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915",
         "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
         "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061",
-        "https://www.gumtree.com/p/microwave-ovens/sharp-microwave-combination-oven-grill/1274737522"
       ])
       done();
     });
@@ -79,7 +80,6 @@ describe('GumtreeTrawler.loadResults', function () {
         seenIds: [
           "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
           "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061",
-          "https://www.gumtree.com/p/microwave-ovens/sharp-microwave-combination-oven-grill/1274737522"
       ]}
     })
 
@@ -107,8 +107,7 @@ describe('GumtreeTrawler.loadResults', function () {
           "Some dud A",
           "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
           "Some dud B",
-          "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061",
-          "https://www.gumtree.com/p/microwave-ovens/sharp-microwave-combination-oven-grill/1274737522"
+          "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061"
       ]}
     })
 
@@ -120,7 +119,6 @@ describe('GumtreeTrawler.loadResults', function () {
         "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
         "Some dud B",
         "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061",
-        "https://www.gumtree.com/p/microwave-ovens/sharp-microwave-combination-oven-grill/1274737522",
         "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
         "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915"
       ])
@@ -144,8 +142,7 @@ describe('GumtreeTrawler.loadResults', function () {
         "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
         "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915",
         "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
-        "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061",
-        "https://www.gumtree.com/p/microwave-ovens/sharp-microwave-combination-oven-grill/1274737522"
+        "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061"
       ])
       done();
     })

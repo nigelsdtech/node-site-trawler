@@ -2,8 +2,6 @@
 
 . ~/bin/setup_node_env.sh
 
-export NODE_ENV="production"
-
 # extract options and their arguments into variables.
 while getopts i: FLAG; do
 	case $FLAG in
