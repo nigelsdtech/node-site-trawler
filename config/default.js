@@ -15,6 +15,7 @@ module.exports = {
 
 
   log: {
+    appName: defer(function (cfg) { return cfg.appName } ),
     level:   "INFO",
     log4jsConfigs: {
       appenders: [
@@ -27,7 +28,7 @@ module.exports = {
             name += ".log"
             return name
           }),
-          category:   defer(function (cfg) { return cfg.appName }),
+          category:   defer(function (cfg) { return cfg.log.appName }),
           reloadSecs: 60,
           maxLogSize: 1024000000
         },
