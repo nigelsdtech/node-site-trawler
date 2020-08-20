@@ -1,10 +1,8 @@
 var cfg             = require('config');
 var chai            = require('chai');
-var fs              = require('fs');
 var jsonFile        = require('jsonfile');
 var nock            = require('nock');
 var TwitterTrawler  = require('../../../../lib/classes/TwitterTrawler.js');
-var Q               = require('q');
 
 /*
  * Set up chai
@@ -154,7 +152,7 @@ describe('TwitterTrawler.getResults', function () {
     })
   });
 
-  it('reports if Twitter request times out', function (done) {
+  it.skip('reports if Twitter request times out', function (done) {
 
     nockRet.socketDelay(20000)
     .reply(503, 'Simulated internal delay')
