@@ -15,6 +15,7 @@
     "cheerio": "^1.0.0-rc.2",
     "config": "^1.30.0",
     "email-notification": "github:nigelsdtech/email-notification",
+    "ewelink-api": "^3.0.0",
     "log4js": "^0.6.37",
     "q": "^1.5.1",
     "reporter": "github:nigelsdtech/reporter",
@@ -25,6 +26,6 @@
     "jsonfile": "^4.0.0",
     "mocha": "^5.2.0",
     "nock": "^9.6.1",
-    "sinon": "^5.0.10"
+    "sinon": "^5.1.1"
   }
 }
