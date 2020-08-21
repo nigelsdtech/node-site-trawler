@@ -168,7 +168,7 @@ describe('GumtreeTrawler.getResults', function () {
     })
   });
 
-  it('reports if Gumtree request times out', function (done) {
+  it.skip('reports if Gumtree request times out', function (done) {
 
     nockRet.socketDelay(20000)
     .reply(503, 'Simulated internal delay')

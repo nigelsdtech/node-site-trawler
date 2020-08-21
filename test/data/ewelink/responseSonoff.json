@@ -1,0 +1,70 @@
+
+[
+  {
+    "_id": "device1",
+    "name": "Porch Light",
+    "type": "10",
+    "deviceid": "1234",
+    "createdAt": "2019-04-21T18:20:34.132Z",
+    "params": {
+      "pulseWidth": 500,
+      "fwVersion": "3.4.0",
+      "switch": "off"
+    },
+    "offlineTime": "2020-08-18T23:35:51.377Z",
+    "deviceStatus": "",
+    "uiid": 1
+  },
+  {
+    "_id": "device2",
+    "deviceid": "2345",
+    "name": "Fridge door",
+    "type": "10",
+    "params": {
+      "switch": "off",
+      "battery": 2.651,
+      "fwVersion": "1000.2.919"
+    },
+    "createdAt": "2020-08-17T22:36:33.660Z",
+    "uiid": 102
+  },
+  {
+    "_id": "device3",
+    "deviceid": "3456",
+    "name": "Freezer door",
+    "type": "10",
+    "params": {
+      "switch": "on",
+      "battery": 2.637,
+      "fwVersion": "1000.2.919"
+    },
+    "createdAt": "2020-08-17T23:46:05.895Z",
+    "uiid": 102
+  },
+  {
+    "_id": "device4",
+    "deviceid": "4567",
+    "name": "Second Fridge door",
+    "type": "10",
+    "params": {
+      "switch": "off",
+      "battery": 0.09,
+      "fwVersion": "1000.2.919"
+    },
+    "createdAt": "2020-08-17T22:36:33.660Z",
+    "uiid": 102
+  },
+  {
+    "_id": "device5",
+    "deviceid": "5678",
+    "name": "Second Freezer door",
+    "type": "10",
+    "params": {
+      "switch": "on",
+      "battery": 2.651,
+      "fwVersion": "1000.2.919"
+    },
+    "createdAt": "2020-08-17T22:36:33.660Z",
+    "uiid": 102
+  }
+]

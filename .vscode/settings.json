@@ -1,0 +1,9 @@
+{
+    "files.exclude": {
+        "**/node_modules/": true
+    },
+    "mochaExplorer.env": {
+        "NODE_ENV": "test"
+    },
+    "mochaExplorer.files": "test/unit/**/*.js"
+}
