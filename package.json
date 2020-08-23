@@ -15,6 +15,7 @@
     "cheerio": "^1.0.0-rc.2",
     "config": "^1.30.0",
     "email-notification": "github:nigelsdtech/email-notification",
+    "gsheets-model": "github:nigelsdtech/gsheets-model",
     "log4js": "^0.6.37",
     "q": "^1.5.1",
     "reporter": "github:nigelsdtech/reporter",

@@ -1,0 +1,8 @@
+{
+    "mochaExplorer.env": {
+        "NODE_ENV": "test"
+    },
+    "mochaExplorer.autoload": false,
+    "mochaExplorer.exit": true,
+    "mochaExplorer.files": "test/unit/**/*.js"
+}
