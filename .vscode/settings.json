@@ -4,5 +4,8 @@
     },
     "mochaExplorer.autoload": false,
     "mochaExplorer.exit": true,
-    "mochaExplorer.files": "test/unit/**/*.js"
+    "mochaExplorer.files": "test/unit/**/*.js",
+    "files.exclude": {
+        "**/node_modules/": true
+    }
 }

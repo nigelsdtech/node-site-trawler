@@ -63,5 +63,5 @@ typings/
 # App data
 .data
 *.swp
-config/local*.js*
+config/local*.*
 config/custom_environment_variables.*
