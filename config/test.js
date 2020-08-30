@@ -18,36 +18,58 @@ module.exports = {
 
   maxResults: 5,
 
-  trawlers: [{
+  trawlers: [
+    {
 
-    trawlModel: "twitter",
-    setup: {
-      id: "@SecretFlying-Twitter",
-      maxResults: 5,
-      twitterId: "SecretFlying",
-      regexMatches: [{
-        pattern : "roundtrip", flags: "gi" },{
-        pattern : "video",     flags: "gi" }
+      trawlModel: "twitter",
+      setup: {
+        id: "@SecretFlying-Twitter",
+        maxResults: 5,
+        twitterId: "SecretFlying",
+        regexMatches: [{
+          pattern : "roundtrip", flags: "gi" },{
+          pattern : "video",     flags: "gi" }
 
-      ]
-    }}, {
+        ]
+      }
+    }, {
 
-    trawlModel: "twitter",
-    setup: {
-      id: "@HolidayPirates-Twitter",
-      maxResults: 5,
-      twitterId: "HolidayPirates",
-      regexMatches: [{
-        pattern : "quarter price", flags: "gi" },{
-        pattern : "half price",    flags: "gi" }
-      ]
-    }}, {
+      trawlModel: "twitter",
+      setup: {
+        id: "@HolidayPirates-Twitter",
+        maxResults: 5,
+        twitterId: "HolidayPirates",
+        regexMatches: [{
+          pattern : "quarter price", flags: "gi" },{
+          pattern : "half price",    flags: "gi" }
+        ]
+      }
+    }, {
 
-    trawlModel: "gumtree",
-    setup: {
-      id: "microwave-Gumtree",
-      gtQuery: "sort=date&q=microwave"
-    }}
+      trawlModel: "gumtree",
+      setup: {
+        id: "microwave-Gumtree",
+        gtQuery: "sort=date&q=microwave"
+      }
+    }, {
+
+      trawlModel: "ewelink",
+      setup: {
+        id: "ewelink-switches",
+        username: "fakePerson",
+        password: "fakePassword",
+        region: "eu",
+        spreadsheet: {
+          id: process.env.SITE_TRAWLER_TEST_SPREADSHEET_ID,
+          subSheetName: "Sheet1"
+        },
+        rollCall: {
+          names: ["Fridge door", "Freezer door", "Second Fridge door", "Second Freezer door"],
+          attendeeFieldToTest: "name"
+        }
+      }
+    }
+
   ],
 
   testEmailSender: {

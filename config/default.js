@@ -10,7 +10,7 @@ module.exports = {
     clientSecretFile: defer( function (cfg) { return cfg.auth.credentialsDir+'/client_secret.json' } ),
     tokenFileDir:     defer( function (cfg) { return cfg.auth.credentialsDir } ),
     tokenFile:        defer( function (cfg) { return 'access_token_'+cfg.appName+ '-' + process.env.NODE_ENV+'.json' } ),
-    googleScopes:     ['https://mail.google.com']
+    googleScopes:     ["https://mail.google.com","https://www.googleapis.com/auth/spreadsheets"]
   },
 
 

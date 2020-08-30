@@ -15,11 +15,10 @@
     "cheerio": "^1.0.0-rc.2",
     "config": "^1.30.0",
     "email-notification": "github:nigelsdtech/email-notification",
-    "gsheets-model": "github:nigelsdtech/gsheets-model",
     "ewelink-api": "^3.0.0",
+    "gsheets-model": "github:nigelsdtech/gsheets-model",
     "js-yaml": "^3.14.0",
     "log4js": "^0.6.37",
-    "q": "^1.5.1",
     "reporter": "github:nigelsdtech/reporter",
     "request": "^2.87.0"
   },
@@ -29,6 +28,7 @@
     "jsonfile": "^4.0.0",
     "mocha": "^5.2.0",
     "nock": "^9.6.1",
+    "q": "^1.5.1",
     "sinon": "^5.1.1"
   }
 }

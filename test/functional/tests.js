@@ -4,11 +4,13 @@ var
   cfg        = require('config'),
   chai       = require('chai'),
   EmailNotification = require('email-notification'),
+  ewelinkApi = require('ewelink-api'),
   fs         = require('fs'),
   gmailModel = require('gmail-model'),
   jsonFile   = require('jsonfile'),
   log4js     = require('log4js'),
   nock       = require('nock'),
+  sinon      = require('sinon'),
   Q          = require('q'),
   main       = require('../../lib/main.js')
 
@@ -39,9 +41,11 @@ var d = d.getTime()
 var recipientAddress = cfg.testEmailRecipient.emailAddress.replace('@', '+' + cfg.appName + '-test@')
 cfg.reporter.notificationTo = recipientAddress
 
-var tweetDataSF = jsonFile.readFileSync('./test/data/responseTweetsSecretFlying.json')
-var tweetDataHP = jsonFile.readFileSync('./test/data/responseTweetsHolidayPirates.json')
-var dataGumtree = fs.readFileSync('./test/data/gumtree/results_1.html')
+const
+  tweetDataSF = jsonFile.readFileSync('./test/data/responseTweetsSecretFlying.json'),
+  tweetDataHP = jsonFile.readFileSync('./test/data/responseTweetsHolidayPirates.json'),
+  dataGumtree = fs.readFileSync('./test/data/gumtree/results_1.html'),
+  dataEWeLink = jsonFile.readFileSync('./test/data/ewelink/responseSonoff.json');
 
 
 /**
@@ -226,8 +230,9 @@ describe('When trawlers returns results', function () {
 
   var nockSF, nockHP, nockGT,
     nockSF2, nockHP2,
+    stubEW,
     qsSF, qsHP, qsGT,
-    tdSF, tdHP, tdGT
+    tdSF, tdHP, tdGT, tdEW
 
   var er = getNewEN({who: 'r', gsc: 'is:inbox to:' + recipientAddress + ' (half price)'})
 
@@ -236,6 +241,7 @@ describe('When trawlers returns results', function () {
     tdSF = tweetDataSF.slice()
     tdHP = tweetDataHP.slice()
     tdGT = dataGumtree
+    tdEW = dataEWeLink
 
     qsSF = { screen_name: "SecretFlying",   count: 5, trim_user: "true", exclude_replies: "true" }
     qsHP = { screen_name: "HolidayPirates", count: 5, trim_user: "true", exclude_replies: "true" }
@@ -244,6 +250,8 @@ describe('When trawlers returns results', function () {
     nockSF = nock(twitterHost).persist().get(twitterUri).query(qsSF).reply(200,tdSF)
     nockHP = nock(twitterHost).persist().get(twitterUri).query(qsHP).reply(200,tdHP)
     nockGT = nock(gumtreeHost)          .get(gumtreeUri).query(qsGT).reply(200,tdGT)
+
+    stubEW = sinon.stub(ewelinkApi.prototype,"getDevices").resolves(tdEW)
 
     qsSF.since_id = 1001102141761650689
     qsHP.since_id = 1001102141761650700
@@ -271,6 +279,8 @@ describe('When trawlers returns results', function () {
   it('Doesn\'t send a report if a subsequent call yields no results', function (done) {
 
     nockGT = nock(gumtreeHost).get(gumtreeUri).query(qsGT).reply(200,tdGT)
+    stubEW.restore()
+    stubEW = sinon.stub(ewelinkApi.prototype,"getDevices").resolves([])
 
     startScript({cleanupJobs: ["recipientInbox"]}, function () {
 
@@ -281,6 +291,8 @@ describe('When trawlers returns results', function () {
       er.hasBeenReceived(null, function (err,hbr) {
         chai.expect(err).to.not.exist
         hbr.should.equal(false)
+        stubEW.restore()
+        stubEW = sinon.stub(ewelinkApi.prototype,"getDevices").resolves(tdEW)
         done()
       })
     })
@@ -289,7 +301,7 @@ describe('When trawlers returns results', function () {
   it('Sends a report only containing additional results if a subsequent call yields a new one', function (done) {
 
     var tdGT2 = fs.readFileSync('./test/data/gumtree/results_1.1.html')
-    var nockGT2 = nock(gumtreeHost).log(console.log).get(gumtreeUri).query(qsGT).reply(200,tdGT2)
+    nock(gumtreeHost).log(console.log).get(gumtreeUri).query(qsGT).reply(200,tdGT2)
 
     startScript({cleanupJobs: ["recipientInbox"]}, function () {
 
@@ -308,6 +320,7 @@ describe('When trawlers returns results', function () {
     nock.cleanAll()
     nockSF = null
     nockHP = null
+    stubEW.restore()
     cleanup(null,done)
   })
 })

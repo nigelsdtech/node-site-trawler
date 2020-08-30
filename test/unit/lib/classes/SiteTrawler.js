@@ -1,6 +1,6 @@
-var cfg           = require('config');
-var chai          = require('chai');
-var SiteTrawler   = require('../../../../lib/classes/SiteTrawler.js');
+const
+  chai          = require('chai'),
+  SiteTrawler   = require('../../../../lib/classes/SiteTrawler.js');
 
 /*
  * Set up chai
@@ -121,6 +121,15 @@ describe('SiteTrawler.getResultsString', function () {
 
 });
 
+describe('SiteTrawler.getDataToSaveToSpreadsheet', function () {
+
+  it('returns null by default (users are forced to write an override)', function () {
+     var s = new SiteTrawler(basicSiteTrawler)
+     const data = s.getDataToSaveToSpreadsheet()
+     chai.expect(data).to.equal(null)
+  })
+
+});
 
 describe('SiteTrawler.loadResults', function () {
 
@@ -131,5 +140,77 @@ describe('SiteTrawler.loadResults', function () {
        done()
      })
   })
+
+})
+
+
+describe('SiteTrawler.getRollCallValues', function () {
+
+  const names = [
+    "Geddy",
+    "Alex",
+    "Neil"
+  ]
+  const attendeeFieldToTest = 'name'
+  const valueForAbsentees = { instrument: 'tambourine' }
+
+  const tests = [{
+    testName: 'All attendees are found (regardless of order)',
+    inputResults: [
+      {name: 'Alex',  instrument: 'guitar'},
+      {name: 'Geddy', instrument: 'bass'},
+      {name: 'Neil',  instrument: 'drums'}
+    ],
+    expectedResponse: [
+      {name: 'Geddy', instrument: 'bass'},
+      {name: 'Alex',  instrument: 'guitar'},
+      {name: 'Neil',  instrument: 'drums'}
+    ]
+  },{
+    testName: "One attendee isn't found and is given a default value",
+    inputResults: [
+      {name: 'Geddy', instrument: 'bass'},
+      {name: 'Neil',  instrument: 'drums'}
+    ],
+    expectedResponse: [
+      {name: 'Geddy', instrument: 'bass'},
+      {name: 'Alex',  instrument: 'tambourine'},
+      {name: 'Neil',  instrument: 'drums'}
+    ]
+  },{
+    testName: "All are absent and are given a default value",
+    inputResults: [],
+    expectedResponse: [
+      {name: 'Geddy', instrument: 'tambourine'},
+      {name: 'Alex',  instrument: 'tambourine'},
+      {name: 'Neil',  instrument: 'tambourine'}
+    ]
+  }]
+
+  const s = new SiteTrawler(basicSiteTrawler)
+
+  tests.forEach ( ({
+    testName,
+    only = false,
+    inputResults,
+    expectedResponse = "Response hasn't been defined",
+  }) => {
+
+    const itFn = (only)? it.only : it ;
+
+    itFn(testName, () => {
+
+      const gotResp = s.getRollCallValues ({
+        names,
+        attendeeFieldToTest,
+        valueForAbsentees,
+        attendees: inputResults
+      })
+
+      gotResp.should.eql(expectedResponse)
+
+   })
+  })
+
 
 })
