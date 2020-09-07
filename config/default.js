@@ -35,7 +35,7 @@ module.exports = {
           }),
           category:   defer(function (cfg) { return cfg.log.appName }),
           reloadSecs: 60,
-          maxLogSize: 1024000000
+          maxLogSize: 16777216
         },
         {
           type: "console"
