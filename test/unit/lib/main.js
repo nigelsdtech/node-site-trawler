@@ -243,7 +243,7 @@ const runMain = main.__get__("main")
  * The actual tests
  */
 
-describe.only('main', function () {
+describe('main', function () {
 
   this.timeout(timeout)
 
