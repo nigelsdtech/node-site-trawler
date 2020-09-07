@@ -64,4 +64,4 @@ typings/
 .data
 *.swp
 config/local*.*
-config/custom_environment_variables.*
+config/custom-environment-variables.*
