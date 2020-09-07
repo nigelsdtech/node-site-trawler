@@ -199,7 +199,7 @@ function startScript(params, cb) {
   .then( function () {
 
     log.info('%s: start the script', fn)
-    return Q.nfcall(main,null)
+    return main()
   })
   .then( function () {
     // Add an arbitrary delay to allow the report email to arrive
