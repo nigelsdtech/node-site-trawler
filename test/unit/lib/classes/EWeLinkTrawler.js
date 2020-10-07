@@ -22,7 +22,7 @@ var basicClassInstantiation = {
   password: "fakePassword",
   region: "eu",
   regexMatches: [
-    {"pattern" : "^Device .* battery and o.*$", "flags": "gi" }
+    {"pattern" : "^Device .* battery and (not )?online and switch (on|off)$", "flags": "gi" }
   ]
 }
 
@@ -81,14 +81,14 @@ describe('EWeLinkTrawler', () => {
       const devices = await getDeviceNames({opts: Object.assign({},b)})
 
       devices.should.have.members([
-        "Device low battery and on",
-        "Device low battery and on 2",
-        "Device low battery and off",
-        "Device low battery and off 2",
-        "Device high battery and on",
-        "Device high battery and on 2",
-        "Device high battery and off",
-        "Device high battery and off 2"
+        "Device low battery and not online and switch on",
+        "Device low battery and not online and switch off",
+        "Device low battery and online and switch on",
+        "Device low battery and online and switch off",
+        "Device high battery and not online and switch on",
+        "Device high battery and not online and switch off",
+        "Device high battery and online and switch on",
+        "Device high battery and online and switch off"
       ])
     });
 
@@ -99,10 +99,10 @@ describe('EWeLinkTrawler', () => {
       const devices = await getDeviceNames({opts:opts})
 
       devices.should.have.members([
-        "Device low battery and on",
-        "Device low battery and on 2",
-        "Device low battery and off",
-        "Device low battery and off 2"
+        "Device low battery and not online and switch on",
+        "Device low battery and not online and switch off",
+        "Device low battery and online and switch on",
+        "Device low battery and online and switch off"
       ])
 
     });
@@ -114,28 +114,28 @@ describe('EWeLinkTrawler', () => {
       const devices = await getDeviceNames({opts: opts});
 
       devices.should.have.members([
-        "Device low battery and on",
-        "Device low battery and on 2",
-        "Device low battery and off",
-        "Device low battery and off 2",
-        "Device high battery and on",
-        "Device high battery and on 2"
+        "Device low battery and not online and switch on",
+        "Device low battery and not online and switch off",
+        "Device low battery and online and switch on",
+        "Device low battery and online and switch off",
+        "Device high battery and not online and switch on",
+        "Device high battery and online and switch on"
       ]);
 
     });
 
-    it('returns devices that are off if alwaysReportIfOff is specified, even when battery is above the threshold', async () => {
+    it('returns devices that are not online if alwaysReportIfNotOnline is specified, even when battery is above the threshold', async () => {
 
-      const opts = Object.assign({}, b, { batteryFilterThreshold: 0.1, alwaysReportIfOff: true });
+      const opts = Object.assign({}, b, { batteryFilterThreshold: 0.1, alwaysReportIfNotOnline: true });
       const devices = await getDeviceNames({opts: opts});
 
       devices.should.have.members([
-        "Device low battery and on",
-        "Device low battery and on 2",
-        "Device low battery and off",
-        "Device low battery and off 2",
-        "Device high battery and off",
-        "Device high battery and off 2"
+        "Device low battery and not online and switch on",
+        "Device low battery and not online and switch off",
+        "Device low battery and online and switch on",
+        "Device low battery and online and switch off",
+        "Device high battery and not online and switch on",
+        "Device high battery and not online and switch off"
       ]);
 
     });
@@ -172,29 +172,29 @@ describe('EWeLinkTrawler', () => {
     const tests = [{
       testDesc: 'returns the expected spreadsheet row when all devices have a response',
       deviceNames: [
-        "Device low battery and off",
-        "Device low battery and off 2",
-        "Device low battery and on",
-        "Device low battery and on 2",
-        "Device high battery and on",
-        "Device high battery and on 2",
-        "Device high battery and off",
-        "Device high battery and off 2"
+        "Device low battery and not online and switch on",
+        "Device low battery and not online and switch off",
+        "Device low battery and online and switch on",
+        "Device low battery and online and switch off",
+        "Device high battery and not online and switch on",
+        "Device high battery and not online and switch off",
+        "Device high battery and online and switch on",
+        "Device high battery and online and switch off"
       ],
       expectedResponse: [0.01,0.05,0.03,0.07,2.637,1.637,2.637,1.637]
     },{
       testDesc: 'fills out absentee values for absentees',
       deviceNames: [
-        "Non existant device 1",
-        "Device low battery and off",
-        "Device low battery and off 2",
+        "Non existant device",
+        "Device low battery and not online and switch on",
+        "Device low battery and not online and switch off",
         "Non existant device 2",
-        "Device low battery and on",
-        "Device low battery and on 2",
-        "Device high battery and on",
-        "Device high battery and on 2",
-        "Device high battery and off",
-        "Device high battery and off 2"
+        "Device low battery and online and switch on",
+        "Device low battery and online and switch off",
+        "Device high battery and not online and switch on",
+        "Device high battery and not online and switch off",
+        "Device high battery and online and switch on",
+        "Device high battery and online and switch off"
       ],
       expectedResponse: [null,0.01,0.05,null,0.03,0.07,2.637,1.637,2.637,1.637]
     }]

@@ -2,6 +2,7 @@
 [
   {
     "_id": "device1",
+    "online": true,
     "name": "Porch Light",
     "type": "10",
     "deviceid": "1",
@@ -18,10 +19,11 @@
   {
     "_id": "device2",
     "deviceid": "2",
-    "name": "Device low battery and off",
+    "online": false,
+    "name": "Device low battery and not online and switch on",
     "type": "10",
     "params": {
-      "switch": "off",
+      "switch": "on",
       "battery": 0.01,
       "fwVersion": "1000.2.919"
     },
@@ -31,7 +33,8 @@
   {
     "_id": "device3",
     "deviceid": "3",
-    "name": "Device low battery and off 2",
+    "online": false,
+    "name": "Device low battery and not online and switch off",
     "type": "10",
     "params": {
       "switch": "off",
@@ -44,7 +47,8 @@
   {
     "_id": "device4",
     "deviceid": "4",
-    "name": "Device low battery and on",
+    "online": true,
+    "name": "Device low battery and online and switch on",
     "type": "10",
     "params": {
       "switch": "on",
@@ -57,10 +61,11 @@
   {
     "_id": "device5",
     "deviceid": "5",
-    "name": "Device low battery and on 2",
+    "online": true,
+    "name": "Device low battery and online and switch off",
     "type": "10",
     "params": {
-      "switch": "on",
+      "switch": "off",
       "battery": 0.07,
       "fwVersion": "1000.2.919"
     },
@@ -70,7 +75,8 @@
   {
     "_id": "device6",
     "deviceid": "6",
-    "name": "Device high battery and on",
+    "online": true,
+    "name": "Device high battery and online and switch on",
     "type": "10",
     "params": {
       "switch": "on",
@@ -83,10 +89,11 @@
   {
     "_id": "device7",
     "deviceid": "7",
-    "name": "Device high battery and on 2",
+    "online": true,
+    "name": "Device high battery and online and switch off",
     "type": "10",
     "params": {
-      "switch": "on",
+      "switch": "off",
       "battery": 1.637,
       "fwVersion": "1000.2.919"
     },
@@ -96,10 +103,11 @@
   {
     "_id": "device8",
     "deviceid": "8",
-    "name": "Device high battery and off",
+    "online": false,
+    "name": "Device high battery and not online and switch on",
     "type": "10",
     "params": {
-      "switch": "off",
+      "switch": "on",
       "battery": 2.637,
       "fwVersion": "1000.2.919"
     },
@@ -109,7 +117,8 @@
   {
     "_id": "device9",
     "deviceid": "9",
-    "name": "Device high battery and off 2",
+    "online": false,
+    "name": "Device high battery and not online and switch off",
     "type": "10",
     "params": {
       "switch": "off",
