@@ -1,9 +1,11 @@
-var cfg             = require('config');
-var chai            = require('chai');
-var jsonFile        = require('jsonfile');
-var ewelinkApi      = require('ewelink-api');
-var sinon           = require('sinon');
-var EWeLinkTrawler  = require('../../../../lib/classes/EWeLinkTrawler.js');
+const
+  cfg             = require('config'),
+  chai            = require('chai'),
+  jsonFile        = require('jsonfile'),
+  {promisify}     = require('util'),
+  ewelinkApi      = require('ewelink-api'),
+  sinon           = require('sinon'),
+  EWeLinkTrawler  = require('../../../../lib/classes/EWeLinkTrawler.js');
 
 /*
  * Set up chai
@@ -12,7 +14,7 @@ chai.should();
 
 
 // Common testing timeout
-var timeout = cfg.timeout || (20*1000);
+var timeout = cfg.timeout || (2*1000);
 
 var basicClassInstantiation = {
   id: "doorSensorChecker",
@@ -20,10 +22,7 @@ var basicClassInstantiation = {
   password: "fakePassword",
   region: "eu",
   regexMatches: [
-    {"pattern" : "Fridge door", "flags": "gi" },
-    {"pattern" : "Freezer door", "flags": "gi" },
-    {"pattern" : "Back Fridge door", "flags": "gi" },
-    {"pattern" : "Back Freezer door", "flags": "gi" },
+    {"pattern" : "^Device .* battery and o.*$", "flags": "gi" }
   ]
 }
 
@@ -52,72 +51,98 @@ describe('EWeLinkTrawler.getResults', function () {
     getDevicesStub.restore()
   })
 
+  /**
+   * 
+   * @param {Object} params
+   * @param {Object} params.opts - initializer for the ewelink object
+   * @param {Object} params.eWeLinkResponse - stubbed response from EWeLink
+   * @returns {Promise<string[]>} - list of device names
+   */
+  function getDeviceNames ({opts,eWeLinkResponse = responseData}) {
 
-  it('returns devices matching the regex criteria', function (done) {
+    const ew = new EWeLinkTrawler(opts)
+    getDevicesStub.resolves(eWeLinkResponse)
 
-    const eWeLinkTrawler = new EWeLinkTrawler(b)
-    getDevicesStub.resolves(responseData)
+    const gr = promisify(ew.getResults).bind(ew)
+    const devices = gr(null)
+      .then ((devices) => {
+        return devices.map((d) => {return d.name})
+      })
+      .catch((e) => {throw e})
 
-    eWeLinkTrawler.getResults(null, function (e,devices) {
+    return devices
+  }
 
-      const ret = devices.map((d) => {return d.name})
+  it('returns devices matching the regex criteria', async () => {
 
-      ret.should.have.members([
-        "Fridge door",
-        "Freezer door",
-        "Second Fridge door",
-        "Second Freezer door"
-      ])
-    })
-    done();
+    const devices = await getDeviceNames({opts: Object.assign({},b)})
+
+    devices.should.have.members([
+      "Device low battery and on",
+      "Device low battery and on 2",
+      "Device low battery and off",
+      "Device low battery and off 2",
+      "Device high battery and on",
+      "Device high battery and on 2",
+      "Device high battery and off",
+      "Device high battery and off 2"
+    ])
   });
 
-  it('returns devices under the battery criteria', function (done) {
 
-    const eWeLinkTrawler = new EWeLinkTrawler(Object.assign({},b,{batteryFilterThreshold: 0.1}))
-    getDevicesStub.resolves(responseData)
+  it('returns devices with low battery when the batteryFilterThreshold is specified', async () => {
 
-    eWeLinkTrawler.getResults(null, function (e,devices) {
+    const opts = Object.assign({},b,{batteryFilterThreshold: 0.1})
+    const devices = await getDeviceNames({opts:opts})
 
-      const ret = devices.map((d) => {return d.name})
+    devices.should.have.members([
+      "Device low battery and on",
+      "Device low battery and on 2",
+      "Device low battery and off",
+      "Device low battery and off 2"
+    ])
 
-      ret.should.have.members([
-        "Second Fridge door"
-      ])
-    })
-    done();
   });
 
-  it('returns devices under the battery criteria and active devices', function (done) {
 
-    const eWeLinkTrawler = new EWeLinkTrawler(Object.assign({},b,{
-      batteryFilterThreshold: 0.1,
-      alwaysReportIfOn: true
-    }))
-    getDevicesStub.resolves(responseData)
+  it('returns devices with low battery when the batteryFilterThreshold is specified or that are active if that option is specified', async () => {
 
-    eWeLinkTrawler.getResults(null, function (e,devices) {
+    const opts = Object.assign({}, b, { batteryFilterThreshold: 0.1, alwaysReportIfOn: true });
+    const devices = await getDeviceNames({opts: opts});
 
-      const ret = devices.map((d) => {return d.name})
+    devices.should.have.members([
+      "Device low battery and on",
+      "Device low battery and on 2",
+      "Device low battery and off",
+      "Device low battery and off 2",
+      "Device high battery and on",
+      "Device high battery and on 2"
+    ]);
 
-      ret.should.have.members([
-        "Freezer door",
-        "Second Fridge door",
-        "Second Freezer door"
-      ])
-      done();
-    })
   });
 
-  it('returns no results', function (done) {
+  it('returns devices that are off if alwaysReportIfOff is specified, even when battery is above the threshold', async () => {
 
-    const eWeLinkTrawler = new EWeLinkTrawler(b)
-    getDevicesStub.resolves([])
+    const opts = Object.assign({}, b, { batteryFilterThreshold: 0.1, alwaysReportIfOff: true });
+    const devices = await getDeviceNames({opts: opts});
 
-    eWeLinkTrawler.getResults(null, function (e,devices) {
-      devices.should.deep.equal([])
-      done();
-    })
+    devices.should.have.members([
+      "Device low battery and on",
+      "Device low battery and on 2",
+      "Device low battery and off",
+      "Device low battery and off 2",
+      "Device high battery and off",
+      "Device high battery and off 2"
+    ]);
+
+  });
+
+  it('returns no results if eWeLink returns nothing', async () => {
+
+    const opts = Object.assign({}, b);
+    const devices = await getDeviceNames({opts: opts, eWeLinkResponse: []});
+
+    devices.should.deep.equal([])
   });
 
 

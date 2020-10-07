@@ -3,7 +3,6 @@ var chai            = require('chai');
 var fs              = require('fs');
 var nock            = require('nock');
 var GumtreeTrawler  = require('../../../../lib/classes/GumtreeTrawler.js');
-var Q               = require('q');
 
 /*
  * Set up chai
