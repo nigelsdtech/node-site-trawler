@@ -6,7 +6,6 @@ var
   EmailNotification = require('email-notification'),
   ewelinkApi = require('ewelink-api'),
   fs         = require('fs'),
-  gmailModel = require('gmail-model'),
   jsonFile   = require('jsonfile'),
   log4js     = require('log4js'),
   nock       = require('nock'),
