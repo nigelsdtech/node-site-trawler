@@ -1,9 +1,12 @@
 {
-    "files.exclude": {
-        "**/node_modules/": true
-    },
     "mochaExplorer.env": {
         "NODE_ENV": "test"
     },
-    "mochaExplorer.files": "test/unit/**/*.js"
+    "mochaExplorer.autoload": true,
+    "mochaExplorer.exit": true,
+    "mochaExplorer.files": "test/unit/**/*.js",
+    "files.exclude": {
+        "**/node_modules/": true,
+        "**/logs/": true
+    }
 }

@@ -26,23 +26,26 @@ var basicClassInstantiation = {
   ]
 }
 
+const responseData = jsonFile.readFileSync('./test/data/ewelink/responseSonoff.json')
+
 
 /*
  * The actual tests
  */
 
-describe('EWeLinkTrawler.getResults', function () {
-
-  this.timeout(timeout)
-
-  const responseData = jsonFile.readFileSync('./test/data/ewelink/responseSonoff.json')
-  const b = Object.assign({},basicClassInstantiation)
+describe('EWeLinkTrawler', () => {
   
-  var getDevicesStub
+  describe('getResults', function () {
+
+    this.timeout(timeout)
   
-  before (function () {
-    getDevicesStub = sinon.stub(ewelinkApi.prototype,"getDevices")
-  })
+    const b = Object.assign({},basicClassInstantiation)
+    
+    var getDevicesStub
+    
+    before (function () {
+      getDevicesStub = sinon.stub(ewelinkApi.prototype,"getDevices")
+    })
 
   afterEach (function () {
     getDevicesStub.reset()
@@ -144,6 +147,81 @@ describe('EWeLinkTrawler.getResults', function () {
 
     devices.should.deep.equal([])
   });
-
-
-});
+  
+  
+  
+  describe('getDataToSaveToSpreadsheet', function () {
+  
+    this.timeout(timeout)
+  
+    const b = Object.assign({},basicClassInstantiation)
+    
+    var getDevicesStub
+    
+    before (function () {
+      getDevicesStub = sinon.stub(ewelinkApi.prototype,"getDevices")
+    })
+  
+    afterEach (function () {
+      getDevicesStub.reset()
+    })
+    after (function () {
+      getDevicesStub.restore()
+    })
+  
+    const tests = [{
+      testDesc: 'returns the expected spreadsheet row when all devices have a response',
+      deviceNames: ['Fridge door', 'Freezer door', 'Second Fridge door', 'Second Freezer door'],
+      expectedResponse: [2.651,2.637,0.09,2.651]
+    },{
+      testDesc: 'fills out absentee values for absentees',
+      deviceNames: ['Fridge door', 'Freezer door', 'Non existant door', 'Second Freezer door'],
+      expectedResponse: [2.651,2.637,null,2.651]
+    }]
+  
+    tests.forEach( ({
+      testDesc,
+      only = false,
+      deviceNames,
+      attendeeFieldToTest = 'name',
+      expectedResponse
+    }) => {
+  
+      const itFn = (only)? it.only : it;
+  
+      it(testDesc, async function () {
+  
+        const init = Object.assign({},b, {
+          rollCall : {
+            attendeeFieldToTest,
+            names: deviceNames
+          }
+        })
+  
+        const eWeLinkTrawler = new EWeLinkTrawler(init)
+        const gr = promisify(eWeLinkTrawler.getResults).bind(eWeLinkTrawler)
+    
+        getDevicesStub.resolves(responseData)
+    
+        await gr(null)
+        
+        const [date, ...batteryData] = eWeLinkTrawler.getDataToSaveToSpreadsheet()
+    
+        const d = new Date().toISOString().replace('T',' ').split('.')[0]
+        date.should.eql(d)
+        const re = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
+        const matched = re.test(d)
+        matched.should.be.true
+  
+        batteryData.should.eql(expectedResponse)
+        
+      });
+  
+    })
+  
+  
+  
+  })
+  
+  
+})

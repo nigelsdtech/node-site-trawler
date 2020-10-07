@@ -9,8 +9,13 @@ module.exports = {
     credentialsDir:   process.env.HOME+'/.credentials',
     clientSecretFile: defer( function (cfg) { return cfg.auth.credentialsDir+'/client_secret.json' } ),
     tokenFileDir:     defer( function (cfg) { return cfg.auth.credentialsDir } ),
-    tokenFile:        defer( function (cfg) { return 'access_token_'+cfg.appName+ '-' + process.env.NODE_ENV+'.json' } ),
-    googleScopes:     ['https://mail.google.com']
+    tokenFile:        defer( function (cfg) {
+      const out = "access_token_" + cfg.appName
+      + "-" + process.env.NODE_APP_INSTANCE
+      + ( (typeof process.env.NODE_ENV == "undefined" || ["", "production"].indexOf(process.env.NODE_ENV) >= 0)? "" : `-${process.env.NODE_ENV}` )
+      + ".json"
+      return out } ),
+    googleScopes:     ["https://mail.google.com","https://www.googleapis.com/auth/spreadsheets"]
   },
 
 
@@ -30,7 +35,7 @@ module.exports = {
           }),
           category:   defer(function (cfg) { return cfg.log.appName }),
           reloadSecs: 60,
-          maxLogSize: 1024000000
+          maxLogSize: 16777216
         },
         {
           type: "console"
