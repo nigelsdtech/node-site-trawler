@@ -153,8 +153,6 @@ describe('EWeLinkTrawler', () => {
   describe('getDataToSaveToSpreadsheet', function () {
   
     this.timeout(timeout)
-  
-    const b = Object.assign({},basicClassInstantiation)
     
     var getDevicesStub
     
@@ -209,9 +207,9 @@ describe('EWeLinkTrawler', () => {
   
       const itFn = (only)? it.only : it;
   
-      it(testDesc, async function () {
+      itFn(testDesc, async function () {
   
-        const init = Object.assign({},b, {
+        const init = Object.assign({},basicClassInstantiation, {
           rollCall : {
             attendeeFieldToTest,
             names: deviceNames
@@ -243,4 +241,86 @@ describe('EWeLinkTrawler', () => {
   
   })
 
+
+  describe('getResults', function () {
+  
+    this.timeout(timeout)
+    
+    const tests = [{
+      testDesc: 'returns a string for no results',
+      results: [],
+      expectedResponse: ""
+    },{
+      testDesc: 'returns a string for one result',
+      results: [
+        {
+          name: "Device low battery and not online and switch on",
+          battery: 0.5,
+          id: "d1",
+          switchStatus: "on",
+          online: false,
+          lastUpdate: "2020-08-17T23:46:05.895Z"
+        }
+      ],
+      expectedResponse: "<br>Device low battery and not online and switch on: Battery 0.5, Switch on, <b>offline</b>"
+
+    },{
+      testDesc: 'returns a string for many results',
+      results: [
+        {
+          name: "Device low battery and not online and switch on",
+          battery: 0.5,
+          id: "d1",
+          switchStatus: "on",
+          online: false,
+          lastUpdate: "2020-08-17T23:46:05.895Z"
+        },{
+          name: "Device high battery and online and switch on",
+          battery: 2.5,
+          id: "d2",
+          switchStatus: "on",
+          online: true,
+          lastUpdate: "2020-08-17T23:46:05.895Z"
+        },{
+          name: "Device high battery and not online and switch off",
+          battery: 1.5,
+          id: "d3",
+          switchStatus: "off",
+          online: false,
+          lastUpdate: "2020-08-17T23:46:05.895Z"
+        }
+      ],
+      expectedResponse: ""
+        + "<br>Device low battery and not online and switch on: Battery 0.5, Switch on, <b>offline</b>"
+        + "<br>Device high battery and online and switch on: Battery 2.5, Switch on, online"
+        + "<br>Device high battery and not online and switch off: Battery 1.5, Switch off, <b>offline</b>"
+
+    }]
+  
+    tests.forEach( ({
+      testDesc,
+      only = false,
+      results,
+      expectedResponse
+    }) => {
+  
+      const itFn = (only)? it.only : it;
+  
+      itFn(testDesc, () => {
+  
+        const init = Object.assign({},basicClassInstantiation)
+  
+        const eWeLinkTrawler = new EWeLinkTrawler(init)
+        eWeLinkTrawler.results = results
+
+        const resultsString = eWeLinkTrawler.getResultsString()
+        resultsString.should.eql(expectedResponse)
+        
+      });
+  
+    })
+  
+  
+  
+  })
 })
