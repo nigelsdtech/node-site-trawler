@@ -38,69 +38,63 @@ describe('SiteTrawler', () => {
     })
   
   
-    it('returns valid results for all tweets ', function (done) {
+    it('returns valid results for all tweets ', async function () {
   
       s = new SiteTrawler(b)
       s.loadResults = lr
   
-      s.getResults(null, function (e,tweets) {
-        tweets.should.deep.equal([
-          {id: 1, contents: "Masterclass this sunday"},
-          {id: 2, contents: "Masterclass this monday"},
-          {id: 3, contents: "New plectrums for sale"}
-        ])
-        done();
-      })
+      const tweets = await s.getResults(null)
+      tweets.should.deep.equal([
+        {id: 1, contents: "Masterclass this sunday"},
+        {id: 2, contents: "Masterclass this monday"},
+        {id: 3, contents: "New plectrums for sale"}
+      ])
     });
   
   
-    it('applies a custom filter to some results', function (done) {
+    it('applies a custom filter to some results', async function () {
   
       s = new SiteTrawler(b)
       s.loadResults = lr
-      s.resultPassesCustomFilters = function (p) { if (p.result.contents.match(/.*Masterclass.*/)) { return true } else { return false } }
+      s.resultPassesCustomFilters = async function (p) { if (p.result.contents.match(/.*Masterclass.*/)) { return true } else { return false } }
   
-      s.getResults(null, function (e,tweets) {
-        tweets.should.deep.equal([
-          {id: 1, contents: "Masterclass this sunday"},
-          {id: 2, contents: "Masterclass this monday"},
-        ])
-        done();
-      })
+      const tweets = await s.getResults(null)
+      tweets.should.deep.equal([
+        {id: 1, contents: "Masterclass this sunday"},
+        {id: 2, contents: "Masterclass this monday"}
+      ])
     });
   
-    it('applies a custom filter to all results', function (done) {
+    it('applies a custom filter to all results', async function () {
   
       s = new SiteTrawler(b)
       s.loadResults = lr
-      s.resultPassesCustomFilters = function (p) { return (p.result.contents.match(/.*concert.*/) > 5) }
+      s.resultPassesCustomFilters = async function (p) { return (p.result.contents.match(/.*concert.*/) > 5) }
   
-      s.getResults(null, function (e,tweets) {
-        tweets.should.deep.equal([])
-        done();
-      })
+      const tweets = await s.getResults(null)
+      tweets.should.deep.equal([])
     });
   
-    it('returns no results if the service had none', function (done) {
+    it('returns no results if the service had none', async function () {
   
       s = new SiteTrawler(b)
-      s.loadResults = function (p,cb) { cb(null) }
+      s.loadResults = async function (p,cb) { cb(null) }
   
-      s.getResults(null, function (e,tweets) {
-        tweets.should.deep.equal([])
-        done();
-      })
+      const tweets = await s.getResults(null)
+      tweets.should.deep.equal([])
+
     });
   
-    it('reports if service failed for any reason', function (done) {
-  
+    it('reports if service failed for any reason', async function () {
+
       s = new SiteTrawler(b)
-      s.loadResults = function (p,cb) { cb('Simulated failure') }
+      s.loadResults = async function (p,cb) { cb('Simulated failure') }
   
-      s.getResults(null, function (e,tweets) {
-        e.should.equal('Failed to load results: Simulated failure')
-        done();
+      const tweets = await s.getResults(null)
+      .catch((e) => {
+        e.message.should.equal('Failed to load results: Simulated failure')
       })
+
     });
   
   

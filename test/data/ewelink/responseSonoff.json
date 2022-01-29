@@ -3,7 +3,7 @@
   {
     "_id": "device1",
     "online": true,
-    "name": "Porch Light",
+    "name": "Porch Light Switched off",
     "type": "10",
     "deviceid": "1",
     "createdAt": "2019-04-21T18:20:34.132Z",
@@ -126,6 +126,19 @@
       "fwVersion": "1000.2.919"
     },
     "createdAt": "2020-08-17T23:46:05.895Z",
+    "uiid": 102
+  },
+  {
+    "_id": "device10",
+    "deviceid": "10",
+    "online": true,
+    "name": "Imaginary Fan Switched on",
+    "type": "10",
+    "params": {
+      "switch": "on",
+      "fwVersion": "1000.2.919"
+    },
+    "createdAt": "202:0-08-17T23:46:05.895Z",
     "uiid": 102
   }
 ]

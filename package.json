@@ -20,7 +20,8 @@
     "js-yaml": "^3.14.0",
     "log4js": "^0.6.37",
     "reporter": "github:nigelsdtech/reporter",
-    "request": "^2.87.0"
+    "request": "^2.87.0",
+    "request-promise-native": "^1.0.9"
   },
   "devDependencies": {
     "Q": "^1.0.0",

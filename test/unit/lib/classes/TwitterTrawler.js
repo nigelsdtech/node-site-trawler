@@ -57,26 +57,24 @@ describe('TwitterTrawler', () => {
     })
   
   
-    it('returns tweets matching the regex criteria', function (done) {
+    it('returns tweets matching the regex criteria', async function () {
   
       nockRet.reply(200,td)
       twitterTrawler = new TwitterTrawler(b)
   
-      twitterTrawler.getResults(null, function (e,tweets) {
-  
-        var ret = []
-        tweets.forEach(function(t) { ret.push(t.id) })
-        ret.should.have.members([
-          1001099733413318656,
-          1001090388910886917,
-          1001084599290642432,
-          1001102141761650700
-        ])
-        done();
-      })
+      const tweets = await twitterTrawler.getResults(null)
+
+      const ret = tweets.map((t) => {return t.id})
+
+      ret.should.have.members([
+        1001099733413318656,
+        1001090388910886917,
+        1001084599290642432,
+        1001102141761650700
+      ])
     });
   
-    it('filters out incoming tweets that are lower id\'s than ones we\'ve seen on previous runs', function (done) {
+    it('filters out incoming tweets that are lower id\'s than ones we\'ve seen on previous runs', async function () {
   
       var highestSeenId = 1001094077708947456
   
@@ -97,20 +95,18 @@ describe('TwitterTrawler', () => {
       twitterTrawler.setSavedData({savedData: {highestSeenId: highestSeenId} })
   
   
-      twitterTrawler.getResults(null, function (e,tweets) {
+      const tweets = await twitterTrawler.getResults(null)
   
-        var ret = []
-        tweets.forEach(function(t) { ret.push(t.id) })
-  
-        ret.should.have.members([
-          1001102141761650700,
-          1001099733413318656
-        ])
-        done();
-      })
+      const ret = tweets.map((t) => {return t.id})
+
+      ret.should.have.members([
+        1001102141761650700,
+        1001099733413318656
+      ])
+
     });
   
-    it('still makes requests correctly when optional arguments aren\'t passed in', function (done) {
+    it('still makes requests correctly when optional arguments aren\'t passed in', async function () {
   
       nockRet = nock(twitterHost)
       .persist()
@@ -126,32 +122,33 @@ describe('TwitterTrawler', () => {
       delete b['maxResults']
       twitterTrawler = new TwitterTrawler(b)
   
-      twitterTrawler.getResults(null, function (e,tweets) {
-        nockRet.isDone().should.be.true
-        done();
-      })
+      await twitterTrawler.getResults(null)
+      nockRet.isDone().should.be.true
+
     });
   
-    it('returns no tweets', function (done) {
+    it('returns no tweets', async function () {
   
       nockRet.reply(200,[])
       twitterTrawler = new TwitterTrawler(b)
   
-      twitterTrawler.getResults(null, function (e,tweets) {
-        tweets.should.deep.equal([])
-        done();
-      })
+      const tweets = await twitterTrawler.getResults(null)
+      tweets.should.deep.equal([])
+
     });
   
-    it('reports if Twitter returned a bad response due to internal error', function (done) {
+    it('reports if Twitter returned a bad response due to internal error', async function () {
   
       nockRet.reply(503,'Simulated 503 error')
       twitterTrawler = new TwitterTrawler(b)
   
-      twitterTrawler.getResults(null, function (e,tweets) {
-        e.should.equal('Failed to load results: (503) "Simulated 503 error"')
-        done();
-      })
+      await twitterTrawler.getResults(null)
+        .then(() => {
+          throw new Error ("Should not get here")
+        })
+        .catch((e) => {
+          e.message.should.equal('Failed to load results: (503) "Simulated 503 error"')
+        })
     });
   
     it.skip('reports if Twitter request times out', function (done) {
@@ -168,7 +165,7 @@ describe('TwitterTrawler', () => {
     });
   
   
-    it('reports if Twitter returned a bad response due to client error', function (done) {
+    it('reports if Twitter returned a bad response due to client error', async function () {
   
       var twitterRespBody = {
         "errors":[{
@@ -178,10 +175,13 @@ describe('TwitterTrawler', () => {
       nockRet.reply(404,twitterRespBody)
       twitterTrawler = new TwitterTrawler(b)
   
-      twitterTrawler.getResults(null, function (e,tweets) {
-        e.should.equal('Failed to load results: (404) ' + JSON.stringify(twitterRespBody))
-        done();
-      })
+      await twitterTrawler.getResults(null)
+        .then (() => {
+          throw new Error("Should not get here")
+        })
+        .catch((e) => {
+          e.message.should.equal('Failed to load results: (404) ' + JSON.stringify(twitterRespBody))
+        })
     });
   
     afterEach (function () {

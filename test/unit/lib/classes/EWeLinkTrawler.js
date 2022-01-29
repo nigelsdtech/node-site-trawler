@@ -61,13 +61,12 @@ describe('EWeLinkTrawler', () => {
      * @param {Object} params.eWeLinkResponse - stubbed response from EWeLink
      * @returns {Promise<string[]>} - list of device names
      */
-    function getDeviceNames ({opts,eWeLinkResponse = responseData}) {
+    async function getDeviceNames ({opts,eWeLinkResponse = responseData}) {
 
       const ew = new EWeLinkTrawler(opts)
       getDevicesStub.resolves(eWeLinkResponse)
 
-      const gr = promisify(ew.getResults).bind(ew)
-      const devices = gr(null)
+      const devices = await ew.getResults(null)
         .then ((devices) => {
           return devices.map((d) => {return d.name})
         })
@@ -217,11 +216,10 @@ describe('EWeLinkTrawler', () => {
         })
   
         const eWeLinkTrawler = new EWeLinkTrawler(init)
-        const gr = promisify(eWeLinkTrawler.getResults).bind(eWeLinkTrawler)
     
         getDevicesStub.resolves(responseData)
     
-        await gr(null)
+        await eWeLinkTrawler.getResults(null)
         
         const [date, ...batteryData] = eWeLinkTrawler.getDataToSaveToSpreadsheet()
     
@@ -242,7 +240,7 @@ describe('EWeLinkTrawler', () => {
   })
 
 
-  describe('getResults', function () {
+  describe('getResultsString', function () {
   
     this.timeout(timeout)
     

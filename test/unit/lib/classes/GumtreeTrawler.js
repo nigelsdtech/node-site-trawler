@@ -52,26 +52,25 @@ describe('GumtreeTrawler', () => {
     })
   
   
-    it('returns all listings', function (done) {
+    it('returns all listings', async function () {
   
       nockRet.reply(200,listingData)
   
-      gumtreeTrawler.getResults(null, function (e,listings) {
+      const listings = await gumtreeTrawler.getResults(null)
   
-        var ret = []
-        listings.forEach(function(t) { ret.push(t.url) })
-  
-        ret.should.have.members([
-          "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
-          "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915",
-          "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
-          "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061",
-        ])
-        done();
-      });
+      var ret = []
+      listings.forEach(function(t) { ret.push(t.url) })
+
+      ret.should.have.members([
+        "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
+        "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915",
+        "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
+        "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061",
+      ])
+
     });
   
-    it('filters out listings already seen', function (done) {
+    it('filters out listings already seen', async function () {
   
       nockRet.reply(200,listingData)
   
@@ -83,21 +82,19 @@ describe('GumtreeTrawler', () => {
         ]}
       })
   
+      const listings = await gumtreeTrawler.getResults(null)
   
-      gumtreeTrawler.getResults(null, function (e,listings) {
-  
-        var ret = []
-        listings.forEach(function(t) { ret.push(t.id) })
-  
-        ret.should.have.members([
-          "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
-          "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915",
-        ])
-        done();
-      })
+      var ret = []
+      listings.forEach(function(t) { ret.push(t.id) })
+
+      ret.should.have.members([
+        "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
+        "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915",
+      ])
+
     });
   
-    it('appends the new results to the set of seen ids', function (done) {
+    it('appends the new results to the set of seen ids', async function () {
   
       nockRet.reply(200,listingData)
   
@@ -112,7 +109,7 @@ describe('GumtreeTrawler', () => {
       })
   
   
-      gumtreeTrawler.getResults(null, function (e,listings) {
+      const listings = await gumtreeTrawler.getResults(null)
   
         gumtreeTrawler.getDataToSave().seenIds.should.have.members([
           "Some dud A",
@@ -122,50 +119,50 @@ describe('GumtreeTrawler', () => {
           "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
           "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915"
         ])
-        done();
-      })
     });
   
-    it('still makes requests correctly when optional arguments aren\'t passed in', function (done) {
+    it('still makes requests correctly when optional arguments aren\'t passed in', async function () {
   
       nockRet.reply(200,listingData)
   
       delete b['maxResults']
       gumtreeTrawler = new GumtreeTrawler(b)
   
-      gumtreeTrawler.getResults(null, function (e,listings) {
+      const listings = await gumtreeTrawler.getResults(null)
   
-        var ret = []
-        listings.forEach(function(t) { ret.push(t.url) })
-  
-        ret.should.have.members([
-          "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
-          "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915",
-          "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
-          "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061"
-        ])
-        done();
-      })
+      var ret = []
+      listings.forEach(function(t) { ret.push(t.url) })
+
+      ret.should.have.members([
+        "https://www.gumtree.com/p/microwave-ovens/microwave/1277743165",
+        "https://www.gumtree.com/p/microwave-ovens/swan-800w-microwave/1277607915",
+        "https://www.gumtree.com/p/microwave-ovens/microwave-for-sale/1277359886",
+        "https://www.gumtree.com/p/microwave-ovens/microwave-morphy-richards-category-e/1276063061"
+      ])
+
     });
   
-    it('returns no listings', function (done) {
+    it('returns no listings', async function () {
   
       nockRet.reply(200,[])
   
-      gumtreeTrawler.getResults(null, function (e,listings) {
-        listings.should.deep.equal([])
-        done();
-      })
+      const listings = await gumtreeTrawler.getResults(null)
+      listings.should.deep.equal([])
+
     });
   
-    it('reports if Gumtree returned a bad response due to internal error', function (done) {
+    it('reports if Gumtree returned a bad response due to internal error', async function () {
   
       nockRet.reply(503,'Simulated 503 error')
   
-      gumtreeTrawler.getResults(null, function (e,listings) {
-        e.should.equal('Failed to load results: (503) "Simulated 503 error"')
-        done();
-      })
+      try {
+        const listings = await gumtreeTrawler.getResults(null)
+        throw new Error ("Should not get here")
+      } catch (e) {
+        e.message.should.equal('Failed to load results: (503) "Simulated 503 error"')
+      }
+
+
     });
   
     it.skip('reports if Gumtree request times out', function (done) {

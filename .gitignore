@@ -65,3 +65,4 @@ typings/
 *.swp
 config/local*.*
 config/custom-environment-variables.*
+sandbox/*

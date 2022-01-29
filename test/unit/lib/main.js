@@ -6,6 +6,7 @@ const
   jsonFile       = require('jsonfile'),
   {stub}         = require('sinon'),
   EWeLinkTrawler = require('../../../lib/classes/EWeLinkTrawler.js'),
+  EWeLinkDeviceController = require('../../../lib/classes/EWeLinkDeviceController.js'),
   GumtreeTrawler = require('../../../lib/classes/GumtreeTrawler.js'),
   TwitterTrawler = require('../../../lib/classes/TwitterTrawler.js'),
   rewire         = require('rewire'),
@@ -91,6 +92,14 @@ const
           attendeeFieldToTest: "name"
         }
       }
+    },{
+      trawlModel: "ewelinkDeviceController",
+      setup: {
+        id: "ewelink-devices",
+        username: "fakePerson",
+        password: "fakePassword",
+        region: "eu"
+      }
     }
   ],
   savedDataFile = 'fakeFile.json',
@@ -159,7 +168,7 @@ function createStubHub ({
   stubHub.getSavedData = stub(jsonFile, "readFile").callsFake((_,cb) => callbackTimeout(cb,{}))
 
   if (createTwitterStubs) {
-    stubHub.twitterTrawlerGetResults = stub(TwitterTrawler.prototype, 'getResults').callsFake((p,cb) => callbackTimeout(cb))
+    stubHub.twitterTrawlerGetResults = stub(TwitterTrawler.prototype, 'getResults').resolves(promiseTimeout)
     stubHub.twitterTrawlerGetDataToSave = stub(TwitterTrawler.prototype, 'getDataToSave').returns(twitterTrawlerGetDataToSave)
     stubHub.twitterTrawlerGetSpreadsheetDataToSave = stub(TwitterTrawler.prototype, 'getDataToSaveToSpreadsheet').throws("twitterTrawlerGetSpreadsheetDataToSave stub - should not get here")
     stubHub.twitterTrawlerGetResultsString = stub(TwitterTrawler.prototype, 'getResultsString').returns(twitterTrawlerGetResultsString)
@@ -173,11 +182,11 @@ function createStubHub ({
       gtgdts = stub(GumtreeTrawler.prototype, 'getDataToSave'),
       gtgrs = stub(GumtreeTrawler.prototype, 'getResultsString')
     if (doesGumtreeFailToLoad) {
-      gtgr.callsFake((p,cb) => callbackTimeout(cb,null,"fake gumtree load error"))
+      gtgr.rejects("fake gumtree load error")
       gtgdts.throws('gumtreeTrawler.getDataToSave - Should not get here')
       gtgrs.throws('gumtreeTrawler.getResultsString - Should not get here')
     } else {
-      gtgr.callsFake((p,cb) => callbackTimeout(cb))
+      gtgr.resolves(promiseTimeout)
       gtgdts.returns(gumtreeTrawlerGetDataToSave)
       gtgrs.returns(gumtreeTrawlerGetResultsString)
     }
@@ -190,10 +199,16 @@ function createStubHub ({
   }
   
 
-  stubHub.eWeLinkTrawlerGetResults = stub(EWeLinkTrawler.prototype, 'getResults').callsFake((p,cb) => callbackTimeout(cb))    
-  stubHub.eWeLinkTrawlerGetDataToSave = stub(EWeLinkTrawler.prototype, 'getDataToSave').returns({})  
+  stubHub.eWeLinkTrawlerGetResults = stub(EWeLinkTrawler.prototype, 'getResults').resolves(promiseTimeout)
+  stubHub.eWeLinkTrawlerGetDataToSave = stub(EWeLinkTrawler.prototype, 'getDataToSave').returns({})
   stubHub.eWeLinkTrawlerGetSpreadsheetDataToSave = stub(EWeLinkTrawler.prototype, 'getDataToSaveToSpreadsheet').returns(eWeLinkTrawlerGetSpreadsheetDataToSave)
   stubHub.eWeLinkTrawlerGetResultsString = stub(EWeLinkTrawler.prototype, 'getResultsString').returns("")
+
+
+  stubHub.eWeLinkDeviceControllerGetResults =               stub(EWeLinkDeviceController.prototype, 'getResults').resolves(promiseTimeout)
+  stubHub.eWeLinkDeviceControllerGetDataToSave =            stub(EWeLinkDeviceController.prototype, 'getDataToSave').returns({})
+  stubHub.eWeLinkDeviceControllerGetSpreadsheetDataToSave = stub(EWeLinkDeviceController.prototype, 'getDataToSaveToSpreadsheet').throws("eWeLinkDeviceControllerGetSpreadsheetDataToSave stub - should not get here")
+  stubHub.eWeLinkDeviceControllerGetResultsString =         stub(EWeLinkDeviceController.prototype, 'getResultsString').returns("")
 
   const ssa = stub()
   if (spreadsheetAppenderError) {
@@ -243,7 +258,7 @@ const runMain = main.__get__("main")
  * The actual tests
  */
 
-describe('main', function () {
+describe.only('main', function () {
 
   this.timeout(timeout)
 
@@ -415,6 +430,46 @@ describe('main', function () {
     })
   })
 
+  describe('Results from trawlers: No email and no spreadsheet', function () {
+
+    var stubHub
+    before(async () => {
+
+      stubHub = createStubHub({
+        gumtreeTrawlerGetDataToSave: {},
+        gumtreeTrawlerGetResultsString: "",
+        twitterTrawlerGetDataToSave: {},
+        twitterTrawlerGetResultsString: "",
+        eWeLinkTrawlerGetSpreadsheetDataToSave: null
+      })
+      await runMain({
+        trawlerSetups: basicTrawlerSetups,
+        log: logStub,
+        savedDataFile: savedDataFile,
+        appendToSpreadsheet: stubHub.spreadsheetAppender,
+        sendCompletionNotice: stubHub.sendCompletionNotice,
+        sendErrorNotice: stubHub.sendErrorNotice
+      })
+      .catch((e) => {
+        console.log('Unexpected error when running script: ' + e)
+        throw new Error(e)
+      })
+    })
+
+    after(() => {
+      cleanStubHub(stubHub)
+    })
+
+    it ('Does not attempt to save to the local file', () => {
+      stubHub.saveNewData.calledOnce.should.be.false
+    })
+    it ('No data to spreadsheet', () => {
+      stubHub.spreadsheetAppender.called.should.be.false
+    })
+    it ('No completion notice', () => {
+      stubHub.sendCompletionNotice.called.should.be.false
+    })
+  })
   describe('Results from trawlers: One email, one failed trawler, and one spreadsheet', function () {
 
     var stubHub
