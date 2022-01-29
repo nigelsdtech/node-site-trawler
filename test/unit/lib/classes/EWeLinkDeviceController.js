@@ -264,7 +264,7 @@ describe('EWeLinkDeviceController', () => {
           lastUpdate: "2020-08-17T23:46:05.895Z"
         }
       ],
-      expectedResponse: "<br>Device low battery and not online and switch on: Battery 0.5, Switch on, <b>offline</b>"
+      expectedResponse: ""
 
     },{
       testDesc: 'returns a string for many results',
@@ -293,9 +293,9 @@ describe('EWeLinkDeviceController', () => {
         }
       ],
       expectedResponse: ""
-        + "<br>Device low battery and not online and switch on: Battery 0.5, Switch on, <b>offline</b>"
-        + "<br>Device high battery and online and switch on: Battery 2.5, Switch on, online"
-        + "<br>Device high battery and not online and switch off: Battery 1.5, Switch off, <b>offline</b>"
+        + ""
+        + ""
+        + ""
 
     }]
   
