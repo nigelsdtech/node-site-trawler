@@ -109,7 +109,7 @@ describe('EWeLinkDeviceController', () => {
       setDevicePowerStateStub.called.should.not.be.true
     });
 
-    it('returns only those devices found by eWeLink where there is no known previous state', async () => {
+    it('returns a combination of devices with and without previously known states', async () => {
 
       const opts = Object.assign({},b,{
         turnOffAfterElapsedMilliseconds: elapsedTimeThreshold,
@@ -129,12 +129,41 @@ describe('EWeLinkDeviceController', () => {
       const devices = await getDeviceNames({opts:opts})
 
       devices.should.have.members([
+        "Porch Light Switched off",
         "Imaginary Fan Switched on"
       ])
 
       setDevicePowerStateStub.called.should.not.be.true
     });
 
+    it('returns devices with a new update time that are known to have been off previously', async () => {
+
+      const opts = Object.assign({},b,{
+        regexMatches: [
+          {"pattern" : "^Porch light Switched off$", "flags": "gi" }
+        ],
+        turnOffAfterElapsedMilliseconds: elapsedTimeThreshold,
+        savedData: {
+          savedData: {
+            results:[{
+              name: "Porch Light Switched off",
+              battery: null,
+              id: "1",
+              switchStatus: "off",
+              online: true,
+              lastUpdateTime: null
+            }]
+          }
+        }
+      })
+      const devices = await getDeviceNames({opts:opts})
+
+      devices.should.have.members([
+        "Porch Light Switched off"
+      ])
+
+      setDevicePowerStateStub.called.should.not.be.true
+    });
     it('returns devices found by eWeLink that were previously switched on more than x seconds ago', async () => {
 
       const opts = Object.assign({},b,{
@@ -169,6 +198,7 @@ describe('EWeLinkDeviceController', () => {
       })
 
       devices.should.have.members([
+        "Porch Light Switched off",
         "Imaginary Fan Switched on"
       ])
 
@@ -206,7 +236,9 @@ describe('EWeLinkDeviceController', () => {
       })
       const devices = await getDeviceNames({opts})
 
-      devices.should.deep.equal([])
+      devices.should.deep.equal([
+        "Porch Light Switched off"
+      ])
       setDevicePowerStateStub.called.should.not.be.true
 
     })
