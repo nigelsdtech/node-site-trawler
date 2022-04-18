@@ -29,7 +29,7 @@ var basicClassInstantiation = {
 const responseData = jsonFile.readFileSync('./test/data/ewelink/responseSonoff.json')
 
 const elapsedTimeThreshold = 150000
-const maxTestTime = 5
+const maxTestTime = 1000
 
 /*
  * The actual tests
