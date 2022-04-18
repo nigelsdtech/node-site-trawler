@@ -2,7 +2,6 @@ const
   cfg             = require('config'),
   chai            = require('chai'),
   jsonFile        = require('jsonfile'),
-  {promisify}     = require('util'),
   ewelinkApi      = require('ewelink-api'),
   sinon           = require('sinon'),
   EWeLinkDeviceController  = require('../../../../lib/classes/EWeLinkDeviceController.js');
@@ -30,6 +29,7 @@ var basicClassInstantiation = {
 const responseData = jsonFile.readFileSync('./test/data/ewelink/responseSonoff.json')
 
 const elapsedTimeThreshold = 150000
+const maxTestTime = 5
 
 /*
  * The actual tests
@@ -44,41 +44,22 @@ describe('EWeLinkDeviceController', () => {
     const b = Object.assign({},basicClassInstantiation)
     
     var getDevicesStub, setDevicePowerStateStub
-    
-    before (function () {
-      getDevicesStub = sinon.stub(ewelinkApi.prototype,"getDevices")
-      setDevicePowerStateStub = sinon.stub(ewelinkApi.prototype,"setDevicePowerState")
-    })
-
-    afterEach (function () {
-      getDevicesStub.reset()
-      setDevicePowerStateStub.reset()
-    })
-    after (function () {
-      getDevicesStub.restore()
-      setDevicePowerStateStub.restore()
-    })
 
     /**
      * 
      * @param {Object} params
      * @param {Object} params.opts - initializer for the ewelink object
      * @param {Object} params.eWeLinkResponse - stubbed response from EWeLink
-     * @returns {Promise<string[]>} - list of device names
+     * @returns {Promise<string[]>} - list of devices with details from EWeLink
      */
-    async function getDeviceNames ({
+    async function getDeviceDetails ({
       opts,
+      savedResults = null,
       eWeLinkGetDevicesResponse = responseData,
-      eWeLinkSetDevicePowerStateResponse = null
+      eWeLinkSetDevicePowerStateResponse = null,
+      turnOffAfterElapsedMilliseconds = elapsedTimeThreshold
     }) {
 
-      const {savedData, ...optsToPassOn} = opts
-
-      const ew = new EWeLinkDeviceController(optsToPassOn)
-      if (typeof savedData != "undefined") {
-        ew.setSavedData(savedData)
-      };
-      
       getDevicesStub.resolves(eWeLinkGetDevicesResponse)
       if (eWeLinkSetDevicePowerStateResponse) {
         setDevicePowerStateStub.resolves(eWeLinkSetDevicePowerStateResponse)
@@ -86,194 +67,224 @@ describe('EWeLinkDeviceController', () => {
         setDevicePowerStateStub.rejects("Should not reach here")
       }
 
-      const devices = await ew.getResults(null)
-        .then ((devices) => {
-          return devices.map((d) => {return d.name})
+      const optsWithThreshold = Object.assign({}, opts, {turnOffAfterElapsedMilliseconds})
+
+      const ew = new EWeLinkDeviceController(optsWithThreshold)
+
+      if (savedResults) {
+        ew.setSavedData({
+          savedData: {
+            results: savedResults
+          }
         })
+      };
+
+
+      const devices = await ew.getResults(null)
         .catch((e) => {throw e})
+
 
       return devices
     }
 
+    const porchLightSavedData = {
+      name: "Porch Light Switched off",
+      battery: null,
+      id: "device1",
+      switchStatus: "off",
+      online: true,
+      lastUpdateTime: 10
+    }
 
-    it('returns all devices found by eWeLink when there is no known previous state', async () => {
+    const fanSavedData = {
+      name: "Imaginary Fan Switched on",
+      battery: null,
+      id: "device10",
+      switchStatus: "on",
+      online: true,
+      lastUpdateTime: 10
+    }
 
-      const opts = Object.assign({},b,{turnOffAfterElapsedMilliseconds: elapsedTimeThreshold})
-      const devices = await getDeviceNames({opts:opts})
+    const responseDataWithSwitchOnDeviceOnly  = responseData.filter((device) => {return (device.name == "Imaginary Fan Switched on")})
+    const responseDataWithSwitchOffDeviceOnly = responseData.filter((device) => {return (device.name == "Porch Light Switched off")})
 
-      devices.should.have.members([
-        "Porch Light Switched off",
-        "Imaginary Fan Switched on"
-      ])
+    /* 
+     *   Previous state is unknown
+     *      - Save the current state
+     * 
+     *   Device is off
+     *      - Save as being off starting now
+     *
+     *   Device is on
+     *      Below the threshold from previous state
+     *         Previous state is known to be off
+     *            - Save the current state
+     *         Previous state is known to be on
+     *            - Save the previous state
+     *      Above the threshold from previous state?
+     *         - Turn it off
+     *         - Save as being off starting now
+     *
+    */
 
-      setDevicePowerStateStub.called.should.not.be.true
-    });
 
-    it('returns a combination of devices with and without previously known states', async () => {
+    function runTest ({
+      testDescription,
+      deviceSaveTestDesc,
+      deviceSaveTest = () => { throw new Error ('Test needed')},
+      only = false,
+      savedResults = null,
+      eWeLinkGetDevicesResponse,
+      eWeLinkSetDevicePowerStateResponse = null,
+      shouldEWeLinkStateChangeBeCalled = false
+    }) {
 
-      const opts = Object.assign({},b,{
-        turnOffAfterElapsedMilliseconds: elapsedTimeThreshold,
-        savedData: {
-          savedData: {
-            results:[{
-              name: "Porch Light Switched off",
-              battery: null,
-              id: "1",
-              switchStatus: "off",
-              online: true,
-              lastUpdateTime: null
-            }]
-          }
-        }
-      })
-      const devices = await getDeviceNames({opts:opts})
+      descFn = (only)? describe.only : describe;
 
-      devices.should.have.members([
-        "Porch Light Switched off",
-        "Imaginary Fan Switched on"
-      ])
+      descFn(testDescription, async () => {
 
-      setDevicePowerStateStub.called.should.not.be.true
-    });
-
-    it('returns devices with a new update time that are known to have been off previously', async () => {
-
-      const opts = Object.assign({},b,{
-        regexMatches: [
-          {"pattern" : "^Porch light Switched off$", "flags": "gi" }
-        ],
-        turnOffAfterElapsedMilliseconds: elapsedTimeThreshold,
-        savedData: {
-          savedData: {
-            results:[{
-              name: "Porch Light Switched off",
-              battery: null,
-              id: "1",
-              switchStatus: "off",
-              online: true,
-              lastUpdateTime: null
-            }]
-          }
-        }
-      })
-      const devices = await getDeviceNames({opts:opts})
-
-      devices.should.have.members([
-        "Porch Light Switched off"
-      ])
-
-      setDevicePowerStateStub.called.should.not.be.true
-    });
-    it('returns devices found by eWeLink that were previously switched on more than x seconds ago', async () => {
-
-      const opts = Object.assign({},b,{
-        turnOffAfterElapsedMilliseconds: elapsedTimeThreshold,
-        savedData: {
-          savedData: {
-            results: [{
-              name: "Imaginary Fan Switched on",
-              battery: null,
-              id: "device10",
-              switchStatus: "on",
-              online: true,
-              lastUpdateTime: 1611794189
-            }, {
-              name: "Porch Light Switched off",
-              battery: null,
-              id: "device1",
-              switchStatus: "off",
-              online: true,
-              lastUpdateTime: 1611794189
-            }]
-          }
-        }
-      })
-      const devices = await getDeviceNames({
-        opts,
-        eWeLinkSetDevicePowerStateResponse : {
-          status: "ok",
-          state: "off",
-          channel: 1
-        }
-      })
-
-      devices.should.have.members([
-        "Porch Light Switched off",
-        "Imaginary Fan Switched on"
-      ])
-
-      setDevicePowerStateStub.callCount.should.eql(1)
-
-    });
-
-    it("doesn't return devices found by eWeLink that were previously switched on less than x seconds ago", async () => {
-
-      const d = new Date()
-      const timeNow = d.getTime()
-      const tenSecondsAgo = timeNow - 10000
-
-      const opts = Object.assign({},b,{
-        turnOffAfterElapsedMilliseconds: elapsedTimeThreshold,
-        savedData: {
-          savedData: {
-            results: [{
-              name: "Imaginary Fan Switched on",
-              battery: null,
-              id: "device10",
-              switchStatus: "on",
-              online: true,
-              lastUpdateTime: tenSecondsAgo
-            }, {
-              name: "Porch Light Switched off",
-              battery: null,
-              id: "device1",
-              switchStatus: "off",
-              online: true,
-              lastUpdateTime: tenSecondsAgo
-            }]
-          }
-        }
-      })
-      const devices = await getDeviceNames({opts})
-
-      devices.should.deep.equal([
-        "Porch Light Switched off"
-      ])
-      setDevicePowerStateStub.called.should.not.be.true
-
-    })
-    it('returns no results if eWeLink returns nothing', async () => {
-
-    const opts = Object.assign({},b,{
-      turnOffAfterElapsedMilliseconds: elapsedTimeThreshold,
-      savedData: {
-        savedData: {
-          results: [{
-            name: "Imaginary Fan Switched on",
-            battery: null,
-            id: "device10",
-            switchStatus: "on",
-            online: true,
-            lastUpdate: 1611794189
-          }, {
-            name: "Porch Light Switched off",
-            battery: null,
-            id: "device1",
-            switchStatus: "off",
-            online: true,
-            lastUpdate: 1611794189
-          }]
-        }
-      }
-    })
-
-    const devices = await getDeviceNames({opts: opts, eWeLinkGetDevicesResponse: []});
-
-    devices.should.deep.equal([])
-    setDevicePowerStateStub.called.should.not.be.true
-  });
+        const devices = []
+        var testStartTime = null
   
-})
+        before (async () => {
+          getDevicesStub = sinon.stub(ewelinkApi.prototype,"getDevices")
+          setDevicePowerStateStub = sinon.stub(ewelinkApi.prototype,"setDevicePowerState")
+
+          testStartTime = (new Date()).getTime()
+          const opts = Object.assign({},b)
+          const ds = await getDeviceDetails({
+            opts,
+            savedResults,
+            eWeLinkGetDevicesResponse,
+            eWeLinkSetDevicePowerStateResponse
+          })
+          ds.forEach((d) => {devices.push(d)})
+        })
+    
+        after (function () {
+          getDevicesStub.reset()
+          setDevicePowerStateStub.reset()
+          getDevicesStub.restore()
+          setDevicePowerStateStub.restore()
+        })
+
+        it(deviceSaveTestDesc, () => {
+          deviceSaveTest(devices, testStartTime)
+        })
+
+        if (shouldEWeLinkStateChangeBeCalled) {
+          it(`Attempts to change the device state with eWeLink`, () => {
+            setDevicePowerStateStub.called.should.be.true
+          })  
+        } else {
+          it(`Doesn't attempt to change the device state with eWeLink`, () => {
+            setDevicePowerStateStub.called.should.not.be.true
+          })
+        }
+      })
+    }
+
+
+    runTest({
+      testDescription: `When the previous state is unknown and the device is now on`,
+      deviceSaveTestDesc: `Saves the device in its current state`,
+      deviceSaveTest: (devices, testStartTime) => { 
+        const d = devices[0]
+        d.name.should.eql("Imaginary Fan Switched on")
+        d.switchStatus.should.eql("on")
+        d.lastUpdateTime.should.be.below((testStartTime+maxTestTime))
+      },
+      eWeLinkGetDevicesResponse: responseDataWithSwitchOnDeviceOnly
+    });
+    runTest({
+      testDescription: `When the previous state is unknown and the device is now off`,
+      deviceSaveTestDesc: `Saves the device in its current state`,
+      deviceSaveTest: (devices, testStartTime) => { 
+        const d = devices[0]
+        d.name.should.eql("Porch Light Switched off")
+        d.switchStatus.should.eql("off")
+        d.lastUpdateTime.should.be.below((testStartTime+maxTestTime))        
+      },
+      eWeLinkGetDevicesResponse: responseDataWithSwitchOffDeviceOnly
+    });
+
+    runTest({
+      testDescription: `When the previous state is known and the device is now off`,
+      deviceSaveTestDesc: `Saves the device in its current state`,
+      savedResults: [porchLightSavedData],
+      deviceSaveTest: (devices, testStartTime) => { 
+        const d = devices[0]
+        d.name.should.eql("Porch Light Switched off")
+        d.switchStatus.should.eql("off")
+        d.lastUpdateTime.should.be.below((testStartTime+maxTestTime)) 
+      },
+      eWeLinkGetDevicesResponse: responseDataWithSwitchOffDeviceOnly
+    });
+
+    describe('When the device is now on', async () => {
+
+      describe(`When the previous state was off`, async () => {
+
+        const fanIsOffSavedResult = Object.assign({},fanSavedData, {switchStatus: "off"})
+
+        runTest({
+          testDescription: `When the fan was previously off but is now on`,
+          deviceSaveTestDesc: `Saves the device as being "on" now`,
+          savedResults: [fanIsOffSavedResult],
+          deviceSaveTest: (devices, testStartTime) => { 
+            const d = devices[0]
+            d.name.should.eql("Imaginary Fan Switched on")
+            d.switchStatus.should.eql("on")
+            d.lastUpdateTime.should.be.above(testStartTime-1)
+            d.lastUpdateTime.should.be.below((testStartTime+maxTestTime))
+          },
+          eWeLinkGetDevicesResponse: responseDataWithSwitchOnDeviceOnly
+        });
+      })
+
+      describe(`When the previous state was on`, async () => {
+        const d = new Date()
+        const timeNow = d.getTime()
+        const tenSecondsAgo = timeNow - 10000
+
+        const fanIsOnAShortWhileAgoSavedResult = Object.assign({}, fanSavedData, {lastUpdateTime: tenSecondsAgo})
+
+        runTest({
+          testDescription: `When the device is below the threshold for turning off`,
+          deviceSaveTestDesc: `Leaves the previous saved state`,
+          savedResults: [fanIsOnAShortWhileAgoSavedResult],
+          deviceSaveTest: (devices, testStartTime) => {
+            const d = devices[0]
+            d.name.should.eql("Imaginary Fan Switched on")
+            d.switchStatus.should.eql("on")
+            d.lastUpdateTime.should.eql(tenSecondsAgo)
+          },
+          eWeLinkGetDevicesResponse: responseDataWithSwitchOnDeviceOnly
+        });
+
+        const tenHoursAgo = timeNow - (1000 * 10 * 60 * 60)
+        const fanIsOnTenHoursAgoSavedResult = Object.assign({}, fanSavedData, {lastUpdateTime: tenHoursAgo})
+        runTest({
+          testDescription: `When the device is above the threshold for turning off`,
+          deviceSaveTestDesc: `Turns the device off and records the off state`,
+          savedResults: [fanIsOnTenHoursAgoSavedResult],
+          shouldEWeLinkStateChangeBeCalled: true,
+          deviceSaveTest: (devices, testStartTime) => {
+            const d = devices[0]
+            d.name.should.eql("Imaginary Fan Switched on")
+            d.switchStatus.should.eql("off")
+            d.lastUpdateTime.should.be.at.least(testStartTime)
+          },
+          eWeLinkGetDevicesResponse: responseDataWithSwitchOnDeviceOnly,
+          eWeLinkSetDevicePowerStateResponse: {status: "off"}
+        });
+
+      })
+
+    })
+
+  
+  })
   
 
   describe('getResultsString', function () {
@@ -325,10 +336,6 @@ describe('EWeLinkDeviceController', () => {
         }
       ],
       expectedResponse: ""
-        + ""
-        + ""
-        + ""
-
     }]
   
     tests.forEach( ({

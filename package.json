@@ -18,7 +18,7 @@
     "ewelink-api": "^3.0.0",
     "gsheets-model": "github:nigelsdtech/gsheets-model",
     "js-yaml": "^3.14.0",
-    "log4js": "^0.6.37",
+    "log4js": "^0.6.38",
     "reporter": "github:nigelsdtech/reporter",
     "request": "^2.87.0",
     "request-promise-native": "^1.0.9"
