@@ -66,3 +66,4 @@ typings/
 config/local*.*
 config/custom-environment-variables.*
 sandbox/*
+compiled/*

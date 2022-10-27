@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "strictNullChecks": true,
+        "outDir": "compiled",
+        "allowJs": true,
+        "checkJs": false,
+        "declaration": true,
+        "exactOptionalPropertyTypes": true,
+        "strictPropertyInitialization": true
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.js"
+    ]
+}
