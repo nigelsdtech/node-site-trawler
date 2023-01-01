@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
-    "config": "^1.30.0",
+    "config": "^3.3.8",
     "email-notification": "github:nigelsdtech/email-notification",
     "ewelink-api": "^3.0.0",
     "gsheets-model": "github:nigelsdtech/gsheets-model",
